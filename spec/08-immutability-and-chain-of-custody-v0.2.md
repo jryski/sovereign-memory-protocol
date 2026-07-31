@@ -270,25 +270,9 @@ A transfer state machine MUST distinguish at least `offered`, `dispatched`, `byt
 
 A verifier MUST return structured dimensions. Each applicable dimension MUST distinguish `pass`, `fail`, `unknown`, `not_applicable`, and `not_checked`; applicable profiles add `stale`, `partial`, `offline`, `unsupported`, `forked`, `equivocating`, `quarantined`, or `policy_unacceptable`.
 
-At minimum, reports MUST include:
-
-- canonicalization/profile support;
-- object commitment and domain binding;
-- immutable-field enforcement surfaces;
-- atomic/replay-safe append;
-- event-stream continuity;
-- stream-registry completeness;
-- semantic-lineage graph;
-- authority/delegation/key status;
-- checkpoint signature, inclusion, ancestry/consistency, and freshness;
-- witness/anchor coverage;
-- transfer state;
-- retention/hold state;
-- payload and erasure state;
-- restore quarantine/currentness;
-- source-qualified completeness;
-- offline/provider-exit coverage;
-- resource-limit compliance.
+Reports MUST use the authoritative verification-dimension registry in
+`05-verification.md`. This section adds custody-chain requirements to those
+dimensions; it does not define competing local dimension names.
 
 Profiles and reports MUST use separate claim tags rather than inferring stronger
 claims from lower layers. The initial claim vocabulary is:
@@ -314,6 +298,7 @@ claims from lower layers. The initial claim vocabulary is:
 - **CST-VER-006:** Aggregate counts MUST NOT substitute for per-case or per-dimension results.
 - **CST-VER-007:** A verification report MUST bind the exact input commitment, verifier implementation/version, profile set, trust configuration identifier, execution time, and resource limits.
 - **CST-VER-008:** Unsupported or unverified critical dimensions MUST make the corresponding conformance claim unavailable.
+- **CST-VER-009:** A result MUST report verification outcome separately from operation disposition. Acceptance, rejection, conflict, pending, no-op, partial acceptance, or quarantine MUST NOT be used as evidence that verification passed.
 
 ## 23. Minimum conformance surfaces
 

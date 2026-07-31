@@ -168,6 +168,7 @@ Every case must produce a structured result containing the exact input commitmen
 | `V02-VER-003-N` | Missing witness, stale checkpoint, incomplete registry, unknown authority, or skipped path collapses into pass | `VERIFICATION_RESULT_INVALID` |
 | `V02-VER-006-N` | Aggregate counts substitute for inspectable per-case outcomes | `VERIFICATION_RESULT_INVALID` |
 | `V02-VER-007-N` | Report omits input, verifier/profile, trust configuration, time, or resource-limit binding | `VERIFICATION_RESULT_INVALID` |
+| `V02-VER-009-N` | Accepted, rejected, pending, conflict, no-op, partial, or quarantined operation disposition is used as verification evidence | `VERIFICATION_RESULT_INVALID` |
 
 ## 10. Promotion condition
 

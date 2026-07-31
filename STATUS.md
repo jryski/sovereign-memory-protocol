@@ -14,8 +14,9 @@ _Overall status: private pre-release review package_
 | Conformance model | Draft | Neutrality boundary defined; complete vectors absent |
 | Error taxonomy | Draft | Security precedence defined; registry incomplete |
 | Immutability and custody chain v0.1 | **NEEDS REVISION / preserved** | Historical review draft is not promoted or rewritten |
-| Immutability and custody chain v0.2 | **Exact-artifact review pending** | Additive candidate maps 146 identified requirements to result and fixture handles; no acceptance or implementation authority |
+| Immutability and custody chain v0.2 | **Exact-artifact review pending** | Additive candidate maps 147 identified requirements to result and fixture handles; no acceptance or implementation authority |
 | External anchoring profiles | Informative research | No service, key, account, or deployment selected |
+| Review-package CI | Draft / active on PRs | Manifest, link, sanitation, status, registry, and traceability checks; not protocol conformance |
 | Public release | Blocked | Sanitation, exact-artifact review, license, and promotion pending |
 
 ## Accepted direction

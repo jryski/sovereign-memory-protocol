@@ -57,11 +57,16 @@ See [STATUS.md](STATUS.md) for section maturity and [PRINCIPLES.md](PRINCIPLES.m
 | [conformance/README.md](conformance/README.md) | Neutral fixture contract |
 | [conformance/expectations/immutability-v0.2-cases.md](conformance/expectations/immutability-v0.2-cases.md) | Adversarial v0.2 case catalog |
 | [conformance/expectations/immutability-v0.2-traceability.md](conformance/expectations/immutability-v0.2-traceability.md) | Requirement/result/fixture traceability |
+| [notes/v0.2-structural-review-disposition.md](notes/v0.2-structural-review-disposition.md) | Disposition of structural review blockers |
 | [notes/adjacent-memory-systems.md](notes/adjacent-memory-systems.md) | Non-competitive composition boundary |
 
 ## Review model
 
 Protocol promotion requires review of exact artifact hashes. Peer agreement is evidence, not authority by itself. Implementation conformance must be reported by dimension and tested surface; a single undifferentiated “SMP conformant” badge is not defined by this draft.
+
+Pull requests run the dependency-free review-package validator through
+`.github/workflows/review-package.yml`. A passing repository-integrity check does
+not establish protocol or implementation conformance.
 
 ## Licensing
 

@@ -3,7 +3,11 @@
 _Status: generated review ledger; not conformance evidence_
 _Source: `../../spec/08-immutability-and-chain-of-custody-v0.2.md`_
 
-This ledger maps every identified v0.2 custody requirement to one primary verification dimension, one blocking result class, and positive/negative fixture identifiers. Fixture identifiers are normative-planning handles; machine-readable vectors are not promoted by this ledger.
+This ledger maps every identified v0.2 custody requirement to one requirement
+family, one registered verification dimension through the family map below, one
+blocking result class, and positive/negative fixture identifiers. Fixture
+identifiers are normative-planning handles; machine-readable vectors are not
+promoted by this ledger.
 
 ## Adversarial-review group coverage
 
@@ -22,9 +26,39 @@ This ledger maps every identified v0.2 custody requirement to one primary verifi
 | Metadata and zone privacy | `CST-PRV-*`, `CST-ENV-*` |
 | Bounded verifier resources and offline evidence | `CST-RES-*`, `CST-OFF-*` |
 
+## Requirement-family to authoritative-dimension map
+
+The authoritative dimension identifiers are defined in
+`../../spec/05-verification.md`. Requirement families below are grouping labels,
+not alternate verification dimensions.
+
+| Requirement family | Authoritative dimension |
+|---|---|
+| `claim_discipline` | `report_contract` |
+| `field_mutability` | `field_mutability` |
+| `recording_boundary` | `atomic_append` |
+| `envelope_domain_binding` | `commitment_integrity` |
+| `canonicalization` | `canonicalization` |
+| `historical_authority` | `historical_authority` |
+| `stream_registry` | `stream_registry` |
+| `atomic_append` | `atomic_append` |
+| `checkpoint_currentness` | `checkpoint_consistency` |
+| `time_semantics` | `report_contract` |
+| `lineage_projection` | `semantic_lineage` |
+| `bilateral_transfer` | `transfer_state` |
+| `retention_hold` | `retention_hold` |
+| `erasure_closure` | `erasure_coverage` |
+| `zone_privacy` | `zone_privacy` |
+| `restore_non_resurrection` | `restore_authority` |
+| `qualified_completeness` | `qualified_completeness` |
+| `offline_portability` | `offline_portability` |
+| `algorithm_agility` | `profile_support` |
+| `resource_bounds` | `resource_bounds` |
+| `verification_contract` | `report_contract` |
+
 ## Requirement-to-fixture map
 
-| Requirement | Primary dimension | Blocking result class | Positive fixture | Negative fixture | Summary |
+| Requirement | Requirement family | Blocking result class | Positive fixture | Negative fixture | Summary |
 |---|---|---|---|---|---|
 | `CST-CLAIM-001` | `claim_discipline` | `CLAIM_OVERREACH` | `V02-CLAIM-001-P` | `V02-CLAIM-001-N` | A verifier MUST distinguish authenticated custody history from substantive truth. Valid custody evidence MUST NOT be reported as proof that subject content is true, current, lawful, useful, or endorsed. |
 | `CST-CLAIM-002` | `claim_discipline` | `CLAIM_OVERREACH` | `V02-CLAIM-002-P` | `V02-CLAIM-002-N` | A verifier MUST distinguish admitted-event continuity from source completeness. A valid disclosed stream MUST NOT prove that no stream or pre-admission source item was omitted. |
@@ -172,10 +206,11 @@ This ledger maps every identified v0.2 custody requirement to one primary verifi
 | `CST-VER-006` | `verification_contract` | `VERIFICATION_RESULT_INVALID` | `V02-VER-006-P` | `V02-VER-006-N` | Aggregate counts MUST NOT substitute for per-case or per-dimension results. |
 | `CST-VER-007` | `verification_contract` | `VERIFICATION_RESULT_INVALID` | `V02-VER-007-P` | `V02-VER-007-N` | A verification report MUST bind the exact input commitment, verifier implementation/version, profile set, trust configuration identifier, execution time, and resource limits. |
 | `CST-VER-008` | `verification_contract` | `VERIFICATION_RESULT_INVALID` | `V02-VER-008-P` | `V02-VER-008-N` | Unsupported or unverified critical dimensions MUST make the corresponding conformance claim unavailable. |
+| `CST-VER-009` | `verification_contract` | `VERIFICATION_RESULT_INVALID` | `V02-VER-009-P` | `V02-VER-009-N` | Verification outcome MUST remain separate from operation disposition; acceptance, rejection, conflict, pending, no-op, partial acceptance, or quarantine MUST NOT evidence verification pass. |
 
 ## Coverage statement
 
-- Parsed requirements: **146**.
+- Parsed requirements: **147**.
 - Every parsed requirement has one positive and one negative fixture handle.
 - A fixture handle does not count as implemented, executed, or passing.
 - Requirement-specific secondary result classes may be added without replacing the primary blocking class above.

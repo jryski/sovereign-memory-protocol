@@ -13,6 +13,8 @@ All notable protocol-review package changes will be recorded here. This file rec
 - Neutral conformance directory and informative adjacent-systems note.
 - Additive immutability and custody-chain v0.2 review candidate; the v0.1 draft remains preserved.
 - v0.2 result-code registry, adversarial case catalog, and generated requirement-to-fixture traceability ledger.
+- Authoritative verification-dimension registry and separate verification outcome / operation disposition contract.
+- Dependency-free review-package validator, unit tests, and pull-request workflow.
 
 ### Security
 
