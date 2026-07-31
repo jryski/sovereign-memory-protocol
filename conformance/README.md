@@ -8,4 +8,4 @@ This directory contains implementation-neutral fixtures, expected outcomes, and 
 - `expectations/` — case matrices and expected structured outcomes;
 - `profiles/` — concrete encoding, algorithm, packaging, or assurance profiles.
 
-The first immutability case matrix is review material and does not yet cover every adversarial P0 requirement. Empty fixture directories are intentional; absence must not be reported as passing coverage.
+The v0.1 immutability matrix is historical review material. The additive v0.2 case catalog and traceability ledger assign stable planning handles to the revised requirements, result classes, and positive/negative fixtures. They are not machine-readable vectors or passing evidence. Empty fixture directories are intentional; absence must not be reported as passing coverage.

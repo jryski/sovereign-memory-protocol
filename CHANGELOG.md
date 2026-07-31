@@ -11,6 +11,8 @@ All notable protocol-review package changes will be recorded here. This file rec
 - Draft logical records, provenance, authority, lifecycle, verification, conformance, and error sections.
 - Adversarially challenged immutability and custody-chain draft.
 - Neutral conformance directory and informative adjacent-systems note.
+- Additive immutability and custody-chain v0.2 review candidate; the v0.1 draft remains preserved.
+- v0.2 result-code registry, adversarial case catalog, and generated requirement-to-fixture traceability ledger.
 
 ### Security
 

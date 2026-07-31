@@ -13,7 +13,8 @@ _Overall status: private pre-release review package_
 | Verification outcomes | Draft | Structured dimensions defined; stable registry incomplete |
 | Conformance model | Draft | Neutrality boundary defined; complete vectors absent |
 | Error taxonomy | Draft | Security precedence defined; registry incomplete |
-| Immutability and custody chain | **NEEDS REVISION** | Adversarial P0 requirements remain open |
+| Immutability and custody chain v0.1 | **NEEDS REVISION / preserved** | Historical review draft is not promoted or rewritten |
+| Immutability and custody chain v0.2 | **Exact-artifact review pending** | Additive candidate maps 146 identified requirements to result and fixture handles; no acceptance or implementation authority |
 | External anchoring profiles | Informative research | No service, key, account, or deployment selected |
 | Public release | Blocked | Sanitation, exact-artifact review, license, and promotion pending |
 
@@ -26,7 +27,7 @@ _Overall status: private pre-release review package_
 
 ## Open P0 requirements
 
-The immutability design is not an implementation-authorizing contract until it defines and tests:
+The v0.2 candidate defines the following P0 contracts in review text, but the design is not an implementation-authorizing contract until exact-artifact review and executable fixture promotion establish them:
 
 1. exact durable recording/admission boundary and claim levels;
 2. complete canonical event, signature, checkpoint, and receipt envelopes;

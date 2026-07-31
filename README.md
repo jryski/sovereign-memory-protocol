@@ -30,7 +30,8 @@ This repository is **private and pre-release**. The document tree is populated f
 
 - Sections marked **Draft** are unstable proposals.
 - A normative `MUST` in a draft is a proposed requirement, not evidence that any implementation conforms.
-- `spec/08-immutability-and-chain-of-custody.md` is explicitly **NEEDS REVISION** after adversarial review.
+- `spec/08-immutability-and-chain-of-custody.md` preserves the v0.1 **NEEDS REVISION** draft.
+- `spec/08-immutability-and-chain-of-custody-v0.2.md` is its additive review successor; it is not accepted or implementation-authorizing.
 - No implementation, deployment, key service, external anchor, or conformance certification is supplied here.
 
 See [STATUS.md](STATUS.md) for section maturity and [PRINCIPLES.md](PRINCIPLES.md) for the protocol boundary.
@@ -51,8 +52,11 @@ See [STATUS.md](STATUS.md) for section maturity and [PRINCIPLES.md](PRINCIPLES.m
 | [spec/05-verification.md](spec/05-verification.md) | Structured verification outcomes |
 | [spec/06-conformance.md](spec/06-conformance.md) | Conformance claims and fixtures |
 | [spec/07-errors.md](spec/07-errors.md) | Stable errors and precedence |
-| [spec/08-immutability-and-chain-of-custody.md](spec/08-immutability-and-chain-of-custody.md) | Immutable fields and custody-chain draft |
+| [spec/08-immutability-and-chain-of-custody.md](spec/08-immutability-and-chain-of-custody.md) | Preserved v0.1 NEEDS REVISION draft |
+| [spec/08-immutability-and-chain-of-custody-v0.2.md](spec/08-immutability-and-chain-of-custody-v0.2.md) | Additive v0.2 normative review candidate |
 | [conformance/README.md](conformance/README.md) | Neutral fixture contract |
+| [conformance/expectations/immutability-v0.2-cases.md](conformance/expectations/immutability-v0.2-cases.md) | Adversarial v0.2 case catalog |
+| [conformance/expectations/immutability-v0.2-traceability.md](conformance/expectations/immutability-v0.2-traceability.md) | Requirement/result/fixture traceability |
 | [notes/adjacent-memory-systems.md](notes/adjacent-memory-systems.md) | Non-competitive composition boundary |
 
 ## Review model

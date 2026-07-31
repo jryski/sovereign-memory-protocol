@@ -33,4 +33,10 @@ Every normative requirement should map to:
 4. resource ceilings;
 5. required and optional profile coverage.
 
+The v0.2 immutability review candidate records this mapping in
+`../conformance/expectations/immutability-v0.2-traceability.md` and the
+adversarial scenarios in
+`../conformance/expectations/immutability-v0.2-cases.md`. A mapped identifier
+does not count as a materialized or passing fixture.
+
 Skipped, unavailable, stale, or partial cases are reported and are not counted as passes.
