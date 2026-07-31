@@ -154,7 +154,7 @@ A checkpoint MUST bind:
 - **CST-CHK-003:** Append-only extension MUST be established through checkpoint ancestry plus a valid consistency proof or an equally explicit profile mechanism.
 - **CST-CHK-004:** A profile MUST define leaf ordering, leaf/interior domain separation, odd-node behavior, empty-tree behavior, proof grammar, and proof resource ceilings.
 - **CST-CHK-005:** Currentness claims MUST compare the presented checkpoint against an independently retained sufficiently recent trusted head or witness required by policy.
-- **CST-CHK-006:** A valid checkpoint older than the declared age/count threshold MUST report `CHECKPOINT_STALE`.
+- **CST-CHK-006:** A valid checkpoint older than the declared age/count threshold MUST report `dimension_status: stale`. If a named currentness claim nevertheless requires that threshold, the report MUST add `FRESHNESS_REQUIREMENT_UNMET` and identify the claim policy.
 - **CST-CHK-007:** Witness or anchor outage MUST report unavailable or stale coverage and MUST NOT cause authorization fail-open or silent assurance downgrade.
 - **CST-CHK-008:** A profile claiming non-equivocation MUST define independent capture, gossip, monitoring, quorum, or consensus assumptions sufficient to expose conflicting heads.
 
@@ -205,11 +205,11 @@ A transfer state machine MUST distinguish at least `offered`, `dispatched`, `byt
 - **CST-ERA-002:** An erasure operation MUST append target, authority, policy basis code, requested scope, method, per-surface outcome, verification evidence, residual limitations, retry/expiry conditions, and resulting verification capability.
 - **CST-ERA-003:** Per-surface outcomes MUST distinguish at least verified, failed, pending, unreachable, offline, stale, retained-by-policy, outside-custody, and unknown.
 - **CST-ERA-004:** A durable erasure receipt MUST use bounded typed fields and MUST NOT retain free-text subject reasons, plaintext excerpts, direct subject identifiers, bearer credentials, mutable locators, commitment-opening material, payload-equivalent content, or unnecessary globally correlatable identifiers.
-- **CST-ERA-005:** Missing content without a valid erasure event MUST report `PAYLOAD_UNAVAILABLE_UNKNOWN`, not erased.
+- **CST-ERA-005:** Missing content without a valid erasure event MUST report the payload-state dimension as `unknown`, not erased. If the payload is represented as erased or available despite that missing evidence, the report MUST add `PAYLOAD_STATE_UNVERIFIABLE`.
 - **CST-ERA-006:** Destroying one key or locator MUST NOT establish cryptographic erasure while required key copies, wrappers, escrow, recovery material, replicas, snapshots, or temporary copies remain unaccounted.
 - **CST-ERA-007:** The complete surviving artifact and service/API set MUST meet the active profile's candidate-confirmation resistance for erased low-entropy content. A public salt beside a plaintext digest is insufficient.
 - **CST-ERA-008:** Destruction of commitment-opening material MUST report the resulting loss of future payload-verification capability.
-- **CST-ERA-009:** Erasure MUST NOT require rewriting unaffected custody-event commitments. If an immutable field itself contains erasable subject data, the profile MUST define an authorized privacy transformation and its explicit assurance loss; undeclared in-place redaction is nonconforming.
+- **CST-ERA-009:** If an immutable envelope was nonconformingly created with subject data that later requires erasure, the original canonical event bytes and original commitment MUST NOT be rewritten, recanonicalized, or replaced in authoritative history. The system MUST append an erasure/redaction event and MAY produce a privacy-safe derivative export or disclosure artifact under a named profile. That derivative MUST bind the original event commitment, transformation profile, removed-field classifications, authorization, and assurance loss; it MUST NOT be represented as the original canonical event. If the original bytes are erased, their payload state MUST become intentionally unavailable and historical verification coverage MUST report the resulting limitation.
 - **CST-ERA-010:** Full-fidelity archival restore and privacy-safe post-erasure export MUST be distinct profiles. Root equality is required only when the authorized retained artifact set is unchanged.
 - **CST-ERA-011:** Erasure propagation to external recipients MUST report acknowledgement, completion, refusal, timeout, outside-custody, and unknown states separately.
 - **CST-ERA-012:** An erasure receipt MUST NOT claim universal deletion or practical irrecoverability beyond the declared threat model and verified coverage.
@@ -227,7 +227,7 @@ A transfer state machine MUST distinguish at least `offered`, `dispatched`, `byt
 
 - **CST-RST-001:** A restored store MUST begin quarantined and non-authoritative.
 - **CST-RST-002:** Before activation it MUST reconcile required independently retained checkpoint/witness evidence, checkpoint ancestry, stream registry and heads, source inventory where claimed, key/delegation/revocation/compromise state, retention and holds, erasures and withdrawals after the snapshot, and authority policy.
-- **CST-RST-003:** An internally valid but stale or incompletely witnessed restore MUST report `RESTORE_QUARANTINED` and MUST NOT become authoritative.
+- **CST-RST-003:** An internally valid but stale or incompletely witnessed restore MUST report `dimension_status: stale` or `partial` as applicable and `operation_disposition: quarantined`; it MUST NOT become authoritative. Activation despite that disposition MUST add `RESTORE_ACTIVATION_VIOLATION`.
 - **CST-RST-004:** A restore MUST NOT expose payloads whose later erasure, withdrawal, hold, transfer, or authority state is unknown under the required freshness policy.
 - **CST-RST-005:** A stale restore MUST NOT resurrect erased payload, expired authority, retired streams, superseded current state, or compromised key status.
 - **CST-RST-006:** Restore MUST preserve original event identity, stream/epoch/position, origin, recorded-time claim, canonical bytes, and commitments.
@@ -268,7 +268,11 @@ A transfer state machine MUST distinguish at least `offered`, `dispatched`, `byt
 
 ## 22. Deterministic verification results
 
-A verifier MUST return structured dimensions. Each applicable dimension MUST distinguish `pass`, `fail`, `unknown`, `not_applicable`, and `not_checked`; applicable profiles add `stale`, `partial`, `offline`, `unsupported`, `forked`, `equivocating`, `quarantined`, or `policy_unacceptable`.
+A verifier MUST return the orthogonal `dimension_status`,
+`operation_disposition`, and `error_class` fields defined in
+`05-verification.md`. Profiles MUST NOT add unregistered state or disposition
+values to those core fields; profile-specific detail belongs in namespaced
+fields.
 
 Reports MUST use the authoritative verification-dimension registry in
 `05-verification.md`. This section adds custody-chain requirements to those
@@ -298,7 +302,7 @@ claims from lower layers. The initial claim vocabulary is:
 - **CST-VER-006:** Aggregate counts MUST NOT substitute for per-case or per-dimension results.
 - **CST-VER-007:** A verification report MUST bind the exact input commitment, verifier implementation/version, profile set, trust configuration identifier, execution time, and resource limits.
 - **CST-VER-008:** Unsupported or unverified critical dimensions MUST make the corresponding conformance claim unavailable.
-- **CST-VER-009:** A result MUST report verification outcome separately from operation disposition. Acceptance, rejection, conflict, pending, no-op, partial acceptance, or quarantine MUST NOT be used as evidence that verification passed.
+- **CST-VER-009:** A result MUST report dimension status separately from operation disposition and error class. Acceptance, rejection, conflict, pending, no-op, partial acceptance, or quarantine MUST NOT be used as evidence that verification passed; ordinary lifecycle states MUST NOT be encoded solely as errors.
 
 ## 23. Minimum conformance surfaces
 

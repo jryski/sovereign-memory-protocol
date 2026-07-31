@@ -170,6 +170,62 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             self.assertEqual(first.returncode, 0)
             self.assertEqual(first.stdout, second.stdout)
 
+    def test_lifecycle_state_cannot_be_registered_as_error_class(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            registry = root / "spec" / "07-errors.md"
+            registry.parent.mkdir()
+            registry.write_text(
+                "# Errors\n\n| Code | Meaning |\n|---|---|\n"
+                "| `TRANSFER_INCOMPLETE` | pending transfer |\n"
+            )
+            self.write_manifest(root, [registry])
+
+            result = self.run_validator(root)
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {"code": "ERROR_CLASS_STATE_CONFLATION", "detail": "TRANSFER_INCOMPLETE"},
+                report["errors"],
+            )
+
+    def test_status_value_cannot_masquerade_as_verification_dimension(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            spec = root / "spec" / "08-immutability-and-chain-of-custody-v0.2.md"
+            spec.parent.mkdir()
+            spec.write_text("# Candidate\n\n- **CST-TEST-001:** A verifier MUST fail closed.\n")
+            dimensions = root / "spec" / "05-verification.md"
+            dimensions.write_text(
+                "# Verification\n\n| Status | Meaning |\n|---|---|\n| `pass` | state |\n\n"
+                "## Authoritative verification-dimension registry\n\n"
+                "| Dimension | Meaning |\n|---|---|\n| `report_contract` | dimension |\n\n"
+                "## Next\n"
+            )
+            registry = root / "spec" / "07-errors.md"
+            registry.write_text("# Errors\n\n| Code | Meaning |\n|---|---|\n| `TEST_FAILURE` | test |\n")
+            trace = root / "conformance" / "expectations" / "immutability-v0.2-traceability.md"
+            trace.parent.mkdir(parents=True)
+            trace.write_text(
+                "# Traceability\n\n| Requirement family | Authoritative dimension |\n|---|---|\n"
+                "| `test_family` | `pass` |\n\n"
+                "| Requirement | Family | Code | Positive | Negative | Summary |\n|---|---|---|---|---|---|\n"
+                "| `CST-TEST-001` | `test_family` | `TEST_FAILURE` | `V02-TEST-001-P` | `V02-TEST-001-N` | test |\n"
+            )
+            cases = root / "conformance" / "expectations" / "immutability-v0.2-cases.md"
+            cases.write_text("# Cases\n\n| Case | Input | Result |\n|---|---|---|\n| `V02-TEST-001-N` | bad | `TEST_FAILURE` |\n")
+            self.write_manifest(root, [cases, trace, dimensions, registry, spec])
+
+            result = self.run_validator(root)
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {"code": "TRACEABILITY_DIMENSION_UNKNOWN", "detail": "test_family:pass"},
+                report["errors"],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

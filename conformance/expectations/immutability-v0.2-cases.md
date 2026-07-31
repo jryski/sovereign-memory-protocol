@@ -50,11 +50,11 @@ Every case must produce a structured result containing the exact input commitmen
 | `V02-AUTH-004-N` | Delegate broadens scope or exceeds delegation depth | `AUTHORITY_SCOPE_INVALID` |
 | `V02-AUTH-005-N` | Cryptographically valid key signs wrong principal, zone, stream, class, operation, or interval | `AUTHORITY_SCOPE_INVALID` |
 | `V02-AUTH-006-P` | Key introduction, rotation, expiry, revocation, recovery, and replacement preserve historical evidence | pass `historical_authority` |
-| `V02-AUTH-007-N` | Backdated post-compromise event uses self-asserted time to escape suspect interval | `KEY_STATUS_INDETERMINATE` |
+| `V02-AUTH-007-N` | Backdated post-compromise event uses self-asserted time to escape suspect interval | `KEY_STATUS_REQUIREMENT_UNMET` |
 | `V02-AUTH-008-N` | Missing historical authority falls back to current authority | `AUTHORITY_UNVERIFIABLE` |
-| `V02-ALG-003-N` | Unknown, expired, below-floor, or downgraded suite silently passes | `ALGORITHM_POLICY_UNACCEPTABLE` |
+| `V02-ALG-003-N` | Unknown, expired, below-floor, or downgraded suite silently passes | `ALGORITHM_POLICY_VIOLATION` |
 | `V02-ALG-004-P` | Old/new suite bridge binds final-old and first-new checkpoints | pass `algorithm_agility` |
-| `V02-ALG-005-N` | New profile retroactively weakens old locked fields or meaning | `ALGORITHM_POLICY_UNACCEPTABLE` |
+| `V02-ALG-005-N` | New profile retroactively weakens old locked fields or meaning | `ALGORITHM_POLICY_VIOLATION` |
 
 ## 4. Stream registry, append, checkpoint, and rollback
 
@@ -65,7 +65,7 @@ Every case must produce a structured result containing the exact input commitmen
 | `V02-STR-004-N` | Deleted, retired, erased, restored, or reinitialized stream ID is reused as genesis | `STREAM_ID_REUSED` |
 | `V02-STR-005-N` | Unknown later genesis or registry/head mismatch is accepted | `STREAM_INVENTORY_INCOMPLETE` |
 | `V02-APP-001-P` | True concurrent compare-and-append yields one committed contiguous successor | pass `atomic_append` |
-| `V02-APP-002-N` | Last-write-wins discards a competitor | `APPEND_CONFLICT` |
+| `V02-APP-002-N` | Last-write-wins discards a competitor | `APPEND_RESULT_INVALID` |
 | `V02-APP-003-P` | Competing mutually exclusive corrections produce winner plus explicit rejection/conflict | pass `atomic_append` |
 | `V02-APP-004-N` | Same predecessor/position has two valid successors | `STREAM_FORK` or `EQUIVOCATION_DETECTED` |
 | `V02-APP-005-N` | Same checkpoint position/prior head has two signed roots | `EQUIVOCATION_DETECTED` |
@@ -75,7 +75,7 @@ Every case must produce a structured result containing the exact input commitmen
 | `V02-CHK-003-N` | Unrelated roots are represented as checkpoint ancestry | `CHECKPOINT_DISCONTINUITY` |
 | `V02-CHK-004-N` | Leaf order or odd-node behavior differs from the profile | `CHECKPOINT_INVALID` |
 | `V02-CHK-005-N` | Trusted older valid head is reported current despite newer independent head | `ROLLBACK_SUSPECTED` |
-| `V02-CHK-006-N` | Checkpoint exceeds maximum age/count but reports current | `CHECKPOINT_STALE` |
+| `V02-CHK-006-N` | Checkpoint exceeds maximum age/count but reports current | `FRESHNESS_REQUIREMENT_UNMET` |
 | `V02-CHK-007-N` | Witness outage causes authorization fail-open or silent downgrade | `VERIFICATION_RESULT_INVALID` |
 | `V02-CHK-008-N` | Two isolated clients receive signer-valid split views with no reported coverage limitation | `EQUIVOCATION_DETECTED` or non-equivocation unknown |
 
@@ -90,8 +90,8 @@ Every case must produce a structured result containing the exact input commitmen
 | `V02-SUP-001-N` | Successor targets missing, wrong-principal, or wrong-zone record | `LINEAGE_INVALID` |
 | `V02-SUP-002-N` | Self-link, prohibited cycle, illegal fork, or mutable authority edge is accepted | `LINEAGE_INVALID` or `REFERENCE_CYCLE` |
 | `V02-SUP-003-P` | Competing corrections follow the profile's conflict/branch rule | pass `lineage_projection` |
-| `V02-SUP-004-N` | Current-winner projection depends on insertion order or unverified authority | `PROJECTION_STALE` |
-| `V02-SUP-006-N` | Erasure, withdrawal, or supersession leaves stale projection authoritative | `PROJECTION_STALE` |
+| `V02-SUP-004-N` | Current-winner projection depends on insertion order or unverified authority | `PROJECTION_INVALID` |
+| `V02-SUP-006-N` | Erasure, withdrawal, or supersession leaves stale projection authoritative | `PROJECTION_INVALID` |
 
 ## 6. Bilateral transfer
 
@@ -99,12 +99,12 @@ Every case must produce a structured result containing the exact input commitmen
 |---|---|---|
 | `V02-XFR-001-P` | Offer binds parties, package, source head, destination, mode, obligations, expiry, and loss declaration | pass `bilateral_transfer` through offered state |
 | `V02-XFR-002-P` | Sender release and recipient acceptance are distinct authorized events | pass `bilateral_transfer` |
-| `V02-XFR-003-N` | Dispatch, possession, byte receipt, or checksum is represented as semantic acceptance | `TRANSFER_INCOMPLETE` |
-| `V02-XFR-004-N` | Sender unilaterally declares completion | `TRANSFER_INCOMPLETE` |
+| `V02-XFR-003-N` | Dispatch, possession, byte receipt, or checksum is represented as semantic acceptance | `TRANSFER_STATE_VIOLATION` |
+| `V02-XFR-004-N` | Sender unilaterally declares completion | `TRANSFER_STATE_VIOLATION` |
 | `V02-XFR-005-N` | Copied custody is represented as exclusive release | `TRANSFER_SCOPE_INVALID` |
 | `V02-XFR-006-N` | Wrong recipient, changed package, expired offer, replayed acceptance, or missing recipient authority | `TRANSFER_SCOPE_INVALID` |
 | `V02-XFR-007-P` | Partial acceptance commits accepted and rejected inventory subsets | pass `bilateral_transfer` as partial, not complete |
-| `V02-XFR-007-N` | Partial acceptance is reported complete for full offer | `TRANSFER_INCOMPLETE` |
+| `V02-XFR-007-N` | Partial acceptance is reported complete for full offer | `TRANSFER_STATE_VIOLATION` |
 | `V02-XFR-008-P` | Cancellation or expiry appends while preserving dispatch/receipt evidence | pass lifecycle |
 | `V02-XFR-009-N` | Destination rewrites origin attribution | `LOCKED_FIELD_CHANGE` |
 | `V02-XFR-010-N` | Transfer proof leaks unauthorized cross-zone identifiers or roots | `ZONE_DISCLOSURE_UNAUTHORIZED` |
@@ -118,16 +118,16 @@ Every case must produce a structured result containing the exact input commitmen
 | `V02-RET-004-P` | Valid hold blocks erasure with minimized pending result | pass hold state; erasure not complete |
 | `V02-RET-005-P` | Hold narrowing/release/expiry appends without rewriting prior state | pass lifecycle |
 | `V02-RET-006-N` | Expired, unverifiable, or wrong-scope hold blocks erasure | `RETENTION_STATE_INVALID` |
-| `V02-ERA-001-N` | Subject data survives in quote, identifier, vector, cache, log, replica, export, backup, key wrapper, or recovery material | `ERASURE_PARTIAL` |
-| `V02-ERA-003-N` | Offline or unreachable backup is counted verified | `ERASURE_PARTIAL` |
+| `V02-ERA-001-N` | Subject data survives in quote, identifier, vector, cache, log, replica, export, backup, key wrapper, or recovery material | `ERASURE_REQUIREMENT_UNMET` |
+| `V02-ERA-003-N` | Offline or unreachable backup is counted verified | `ERASURE_REQUIREMENT_UNMET` |
 | `V02-ERA-004-N` | Receipt contains subject reason, excerpt, direct identity, mutable locator, commitment-opening material, or payload-equivalent data | `ERASURE_RECEIPT_UNSAFE` |
-| `V02-ERA-005-N` | Missing payload without erasure event is reported erased | `PAYLOAD_UNAVAILABLE_UNKNOWN` |
-| `V02-ERA-006-N` | One data key is destroyed while wrapper, escrow, recovery, snapshot, or temporary key copy remains | `ERASURE_PARTIAL` |
+| `V02-ERA-005-N` | Missing payload without erasure event is reported erased | `PAYLOAD_STATE_UNVERIFIABLE` |
+| `V02-ERA-006-N` | One data key is destroyed while wrapper, escrow, recovery, snapshot, or temporary key copy remains | `ERASURE_REQUIREMENT_UNMET` |
 | `V02-ERA-007-N` | Surviving artifact/API set confirms low-entropy erased candidate | `ERASURE_RECEIPT_UNSAFE` |
 | `V02-ERA-008-P` | Opening destruction reports intentional future verification loss | pass with reduced payload-verification capability |
-| `V02-ERA-009-N` | Immutable subject field is silently blanked or redacted | `LOCKED_FIELD_CHANGE` |
+| `V02-ERA-009-N` | Original canonical bytes are rewritten, or a redacted derivative is represented as the original event | `LOCKED_FIELD_CHANGE` |
 | `V02-ERA-010-N` | Privacy-safe export is required to reproduce pre-erasure archival root | `CLAIM_OVERREACH` |
-| `V02-ERA-011-N` | External-recipient propagation timeout is reported complete | `ERASURE_PARTIAL` |
+| `V02-ERA-011-N` | External-recipient propagation timeout is reported complete | `ERASURE_REQUIREMENT_UNMET` |
 | `V02-ERA-012-N` | Receipt claims universal deletion beyond declared boundary | `CLAIM_OVERREACH` |
 | `V02-PRV-003-N` | Root, cadence, cardinality, locator, actor, or proof access enables unauthorized cross-zone correlation | `ZONE_DISCLOSURE_UNAUTHORIZED` |
 | `V02-PRV-004-N` | Selective disclosure lacks audience, purpose, interval, fields, source commitment, or replay protection | `ZONE_DISCLOSURE_UNAUTHORIZED` |
@@ -138,19 +138,19 @@ Every case must produce a structured result containing the exact input commitmen
 | Case | Scenario | Expected primary result |
 |---|---|---|
 | `V02-RST-001-P` | Restored store begins quarantined | pass `restore_non_resurrection` |
-| `V02-RST-002-N` | Restore omits registry, latest checkpoint, authority, key, hold, erasure, or inventory reconciliation | `RESTORE_QUARANTINED` |
-| `V02-RST-003-N` | Internally valid stale snapshot becomes authoritative | `ROLLBACK_SUSPECTED` plus `RESTORE_QUARANTINED` |
+| `V02-RST-002-N` | Restore omits registry, latest checkpoint, authority, key, hold, erasure, or inventory reconciliation | `RESTORE_ACTIVATION_VIOLATION` |
+| `V02-RST-003-N` | Internally valid stale snapshot reports `stale`/`quarantined` but is nevertheless activated | `ROLLBACK_SUSPECTED` plus `RESTORE_ACTIVATION_VIOLATION` |
 | `V02-RST-004-N` | Restore exposes payload whose later erasure state is unknown | `NON_RESURRECTION_VIOLATION` |
 | `V02-RST-005-N` | Restore resurrects erased payload, expired authority, retired stream, superseded state, or compromised key status | `NON_RESURRECTION_VIOLATION` |
 | `V02-RST-006-N` | Restore rewrites origin, event identity, position, time claim, canonical bytes, or commitment | `COMMITMENT_MISMATCH` |
 | `V02-RST-007-P` | Distinct restore-instance and continuation/promotion event precede writable authority | pass `restore_non_resurrection` |
-| `V02-RST-008-N` | Restored copy silently clones source writable authority | `RESTORE_QUARANTINED` |
+| `V02-RST-008-N` | Restored copy silently clones source writable authority | `RESTORE_ACTIVATION_VIOLATION` |
 | `V02-CMP-001-P` | Authenticated frozen source inventory has explicit disposition for every in-scope item | pass `qualified_completeness` |
-| `V02-CMP-003-N` | Live-source completeness is claimed without authenticated snapshot/cursor | `COMPLETENESS_UNKNOWN` |
+| `V02-CMP-003-N` | Live-source completeness is claimed without authenticated snapshot/cursor | `COMPLETENESS_CLAIM_UNSUPPORTED` |
 | `V02-CMP-004-N` | Inclusion proof is presented as absence/completeness proof | `CLAIM_OVERREACH` |
-| `V02-CMP-005-N` | Item omitted before manifest without independent source boundary; verifier reports complete | `COMPLETENESS_UNKNOWN` |
+| `V02-CMP-005-N` | Item omitted before manifest without independent source boundary; verifier reports complete | `COMPLETENESS_CLAIM_UNSUPPORTED` |
 | `V02-CMP-006-N` | Frozen source item has no disposition | `SOURCE_ACCOUNTING_INCOMPLETE` |
-| `V02-OFF-001-N` | Offline bundle lacks required schemas, registry, authority/key history, proofs, or coverage manifest | `OFFLINE_EVIDENCE_INCOMPLETE` |
+| `V02-OFF-001-N` | Offline bundle lacks required schemas, registry, authority/key history, proofs, or coverage manifest | `OFFLINE_CLAIM_UNSUPPORTED` |
 | `V02-OFF-002-N` | Bundle supplies its own silently trusted root/head | `AUTHORITY_UNVERIFIABLE` |
 | `V02-OFF-003-N` | Offline verifier silently fetches mutable online trust state | `VERIFICATION_RESULT_INVALID` |
 | `V02-OFF-004-P` | Source, signer, provider, and network are absent; portable evidence still verifies declared dimensions | pass `offline_portability` |

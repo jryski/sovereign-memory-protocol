@@ -37,6 +37,19 @@ STATUS_LINE = re.compile(r"(?i)^\s*_?status\s*:\s*(.+?)_?\s*$")
 PROMOTED_STATUS = re.compile(
     r"(?i)^(?:\*\*)?(?:promoted|accepted normative|normative baseline|conformant)(?:\*\*)?(?:\s|$)"
 )
+STATE_LIKE_ERROR_CLASSES = {
+    "ALGORITHM_POLICY_UNACCEPTABLE",
+    "APPEND_CONFLICT",
+    "CHECKPOINT_STALE",
+    "COMPLETENESS_UNKNOWN",
+    "ERASURE_PARTIAL",
+    "KEY_STATUS_INDETERMINATE",
+    "OFFLINE_EVIDENCE_INCOMPLETE",
+    "PAYLOAD_UNAVAILABLE_UNKNOWN",
+    "PROJECTION_STALE",
+    "RESTORE_QUARANTINED",
+    "TRANSFER_INCOMPLETE",
+}
 
 
 def error(code: str, path: str | None = None, detail: str | None = None) -> dict[str, str]:
@@ -161,6 +174,19 @@ def validate_status_consistency(root: pathlib.Path, paths: list[pathlib.Path], e
                 errors.append(error("STATUS_PROMOTION_CONFLICT", relative))
 
 
+def validate_registry_orthogonality(root: pathlib.Path, errors: list[dict[str, str]]) -> None:
+    registry = root / "spec" / "07-errors.md"
+    if not registry.is_file():
+        return
+    try:
+        text = registry.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return
+    codes = set(re.findall(r"^\| `([A-Z][A-Z0-9_]+)` \|", text, re.MULTILINE))
+    for code in sorted(codes & STATE_LIKE_ERROR_CLASSES):
+        errors.append(error("ERROR_CLASS_STATE_CONFLATION", detail=code))
+
+
 def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) -> dict[str, int]:
     empty_metrics = {
         "requirements": 0,
@@ -198,7 +224,16 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
     )
     trace_ids = [row[0] for row in trace_rows]
     registry_codes = set(re.findall(r"^\| `([A-Z][A-Z0-9_]+)` \|", registry, re.MULTILINE))
-    dimension_ids = set(re.findall(r"^\| `([a-z][a-z0-9_]+)` \|", dimensions, re.MULTILINE))
+    dimension_section = re.search(
+        r"^## Authoritative verification-dimension registry\s*$\n(.*?)(?=^## |\Z)",
+        dimensions,
+        re.MULTILINE | re.DOTALL,
+    )
+    dimension_ids = (
+        set(re.findall(r"^\| `([a-z][a-z0-9_]+)` \|", dimension_section.group(1), re.MULTILINE))
+        if dimension_section is not None
+        else set()
+    )
     family_map = dict(
         re.findall(r"^\| `([a-z][a-z0-9_]+)` \| `([a-z][a-z0-9_]+)` \|$", trace, re.MULTILINE)
     )
@@ -265,6 +300,7 @@ def validate(root: pathlib.Path) -> dict[str, Any]:
     validate_markdown_links(root, list(actual_paths.values()), errors)
     validate_sanitation(root, list(actual_paths.values()), errors)
     validate_status_consistency(root, list(actual_paths.values()), errors)
+    validate_registry_orthogonality(root, errors)
     metrics = validate_v02_traceability(root, errors)
 
     errors.sort(key=lambda item: (item["code"], item.get("path", ""), item.get("detail", "")))
