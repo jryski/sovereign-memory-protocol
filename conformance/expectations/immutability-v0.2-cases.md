@@ -40,7 +40,7 @@ ledger. Additional findings follow the explicit `secondary:` marker.
 | `V02-ENV-002-N` | Event bytes substitute for payload, checkpoint, transfer, erasure, restore, authority, registry, or witness object | `DOMAIN_BINDING_INVALID` |
 | `V02-ENV-003-N` | Valid object replays across principal, zone, stream, epoch, class, or purpose | `DOMAIN_BINDING_INVALID` |
 | `V02-ENV-004-N` | Unknown critical field is ignored | `DOMAIN_BINDING_INVALID`; secondary: `UNKNOWN_CRITICAL_EXTENSION` |
-| `V02-ENV-004-P` | Unknown noncritical field remains byte-preserved through export/restore | pass with uninterpreted extension |
+| `V02-ENV-004-P` | Unknown noncritical field remains byte-preserved through export/restore | pass `commitment_integrity` with uninterpreted extension |
 | `V02-ENV-005-N` | Human rendering omits a committed critical field without disclosure | `DOMAIN_BINDING_INVALID`; secondary: `VERIFICATION_RESULT_INVALID` |
 | `V02-ENV-006-N` | Durable receipt contains secret, bearer credential, or payload-equivalent content | `DOMAIN_BINDING_INVALID`; secondary: `SECRET_IN_DURABLE_ENVELOPE` |
 | `V02-ENV-008-N` | A valid signature is replayed under a different purpose, object type, principal, zone, stream, epoch, key epoch, or suite | `DOMAIN_BINDING_INVALID` |
@@ -109,7 +109,7 @@ ledger. Additional findings follow the explicit `secondary:` marker.
 | `V02-XFR-006-N` | Wrong recipient, changed package, expired offer, replayed acceptance, or missing recipient authority | `TRANSFER_STATE_VIOLATION`; secondary: `TRANSFER_SCOPE_INVALID` |
 | `V02-XFR-007-P` | Partial acceptance commits accepted and rejected inventory subsets | pass `transfer_state` as partial, not complete |
 | `V02-XFR-007-N` | Partial acceptance is reported complete for full offer | `TRANSFER_STATE_VIOLATION` |
-| `V02-XFR-008-P` | Cancellation or expiry appends while preserving dispatch/receipt evidence | pass lifecycle |
+| `V02-XFR-008-P` | Cancellation or expiry appends while preserving dispatch/receipt evidence | pass `transfer_state` lifecycle |
 | `V02-XFR-009-N` | Destination rewrites origin attribution | `TRANSFER_STATE_VIOLATION`; secondary: `LOCKED_FIELD_CHANGE` |
 | `V02-XFR-010-N` | Transfer proof leaks unauthorized cross-zone identifiers or roots | `TRANSFER_STATE_VIOLATION`; secondary: `ZONE_DISCLOSURE_UNAUTHORIZED` |
 
@@ -119,8 +119,8 @@ ledger. Additional findings follow the explicit `secondary:` marker.
 |---|---|---|
 | `V02-RET-002-P` | Hold binds authority, scope, policy, start, review, expiry/release, and affected operations | pass `retention_hold` |
 | `V02-RET-003-N` | Hold authorizes unrelated processing, disclosure, correlation, or indefinite retention | `RETENTION_STATE_INVALID` |
-| `V02-RET-004-P` | Valid hold blocks erasure with minimized pending result | pass hold state; erasure not complete |
-| `V02-RET-005-P` | Hold narrowing/release/expiry appends without rewriting prior state | pass lifecycle |
+| `V02-RET-004-P` | Valid hold blocks erasure with minimized pending result | pass `retention_hold`; hold state applies and erasure is not complete |
+| `V02-RET-005-P` | Hold narrowing/release/expiry appends without rewriting prior state | pass `retention_hold` lifecycle |
 | `V02-RET-006-N` | Expired, unverifiable, or wrong-scope hold blocks erasure | `RETENTION_STATE_INVALID` |
 | `V02-ERA-001-N` | Subject data survives in quote, identifier, vector, cache, log, replica, export, backup, key wrapper, or recovery material | `ERASURE_REQUIREMENT_UNMET` |
 | `V02-ERA-003-N` | Offline or unreachable backup is counted verified | `ERASURE_REQUIREMENT_UNMET` |
@@ -128,7 +128,7 @@ ledger. Additional findings follow the explicit `secondary:` marker.
 | `V02-ERA-005-N` | Missing payload without erasure event is reported erased | `PAYLOAD_STATE_UNVERIFIABLE` |
 | `V02-ERA-006-N` | One data key is destroyed while wrapper, escrow, recovery, snapshot, or temporary key copy remains | `ERASURE_REQUIREMENT_UNMET` |
 | `V02-ERA-007-N` | Surviving artifact/API set confirms low-entropy erased candidate | `ERASURE_REQUIREMENT_UNMET`; secondary: `ERASURE_RECEIPT_UNSAFE` |
-| `V02-ERA-008-P` | Opening destruction reports intentional future verification loss | pass with reduced payload-verification capability |
+| `V02-ERA-008-P` | Opening destruction reports intentional future verification loss | pass `erasure_coverage` with reduced payload-verification capability |
 | `V02-ERA-009-N` | Original canonical bytes are rewritten, or a redacted derivative is represented as the original event | `LOCKED_FIELD_CHANGE` |
 | `V02-ERA-010-N` | Privacy-safe export is required to reproduce pre-erasure archival root | `ERASURE_REQUIREMENT_UNMET`; secondary: `CLAIM_OVERREACH` |
 | `V02-ERA-011-N` | External-recipient propagation timeout is reported complete | `ERASURE_REQUIREMENT_UNMET` |

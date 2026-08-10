@@ -262,6 +262,23 @@ class ReviewPackageValidatorTests(unittest.TestCase):
                 report["errors"],
             )
 
+    def test_case_pass_result_must_name_a_dimension(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, positive_result="pass lifecycle")
+
+            result = self.run_validator(root)
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {
+                    "code": "CASE_PASS_DIMENSION_MISSING",
+                    "detail": "V02-TEST-001-P",
+                },
+                report["errors"],
+            )
+
     def test_status_value_cannot_masquerade_as_verification_dimension(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)

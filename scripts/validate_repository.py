@@ -288,7 +288,9 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
                 )
         if identifier.endswith("-P") and result.startswith("pass "):
             dimension_match = re.search(r"`([a-z][a-z0-9_]+)`", result)
-            if dimension_match is not None and dimension_match.group(1) not in dimension_ids:
+            if dimension_match is None:
+                errors.append(error("CASE_PASS_DIMENSION_MISSING", detail=identifier))
+            elif dimension_match.group(1) not in dimension_ids:
                 errors.append(
                     error(
                         "CASE_PASS_DIMENSION_UNKNOWN",
