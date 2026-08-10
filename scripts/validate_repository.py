@@ -237,8 +237,17 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
     family_map = dict(
         re.findall(r"^\| `([a-z][a-z0-9_]+)` \| `([a-z][a-z0-9_]+)` \|$", trace, re.MULTILINE)
     )
-    case_ids = re.findall(r"^\| `(V02-[A-Z]+-\d+(?:-[PN])?)` \|", cases, re.MULTILINE)
+    case_rows = re.findall(
+        r"^\| `(V02-[A-Z]+-\d+(?:-[PN])?)` \|.*?\| (.*?) \|$",
+        cases,
+        re.MULTILINE,
+    )
+    case_ids = [identifier for identifier, _ in case_rows]
     case_codes = set(re.findall(r"`([A-Z][A-Z0-9_]+)`", cases))
+    trace_by_negative_fixture = {
+        negative: (identifier, code)
+        for identifier, _family, code, _positive, negative in trace_rows
+    }
 
     for identifier in sorted(set(requirement_ids) - set(trace_ids)):
         errors.append(error("TRACEABILITY_REQUIREMENT_MISSING", detail=identifier))
@@ -264,6 +273,28 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
             errors.append(error("TRACEABILITY_FIXTURE_ID_INVALID", detail=identifier))
     for code in sorted(case_codes - registry_codes - {"PASS"}):
         errors.append(error("CASE_CODE_UNREGISTERED", detail=code))
+    for identifier, result in case_rows:
+        if identifier in trace_by_negative_fixture:
+            _requirement, expected_code = trace_by_negative_fixture[identifier]
+            primary_match = re.search(r"`([A-Z][A-Z0-9_]+)`", result)
+            if primary_match is None:
+                errors.append(error("CASE_PRIMARY_RESULT_MISSING", detail=identifier))
+            elif primary_match.group(1) != expected_code:
+                errors.append(
+                    error(
+                        "CASE_PRIMARY_RESULT_MISMATCH",
+                        detail=f"{identifier}:{expected_code}:{primary_match.group(1)}",
+                    )
+                )
+        if identifier.endswith("-P") and result.startswith("pass "):
+            dimension_match = re.search(r"`([a-z][a-z0-9_]+)`", result)
+            if dimension_match is not None and dimension_match.group(1) not in dimension_ids:
+                errors.append(
+                    error(
+                        "CASE_PASS_DIMENSION_UNKNOWN",
+                        detail=f"{identifier}:{dimension_match.group(1)}",
+                    )
+                )
     for identifier in sorted({value for value in case_ids if case_ids.count(value) > 1}):
         errors.append(error("CASE_ID_DUPLICATE", detail=identifier))
 

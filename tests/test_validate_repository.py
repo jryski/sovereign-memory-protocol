@@ -27,6 +27,44 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             entries.append(f"{digest}  {path.relative_to(root).as_posix()}")
         (root / "REVIEW-MANIFEST.sha256").write_text("\n".join(entries) + "\n")
 
+    def write_v02_package(
+        self,
+        root: pathlib.Path,
+        *,
+        positive_result: str = "pass `report_contract`",
+        negative_result: str = "`TEST_FAILURE`",
+    ) -> None:
+        spec = root / "spec" / "08-immutability-and-chain-of-custody-v0.2.md"
+        spec.parent.mkdir()
+        spec.write_text("# Candidate\n\n- **CST-TEST-001:** A verifier MUST fail closed.\n")
+        dimensions = root / "spec" / "05-verification.md"
+        dimensions.write_text(
+            "# Verification\n\n## Authoritative verification-dimension registry\n\n"
+            "| Dimension | Meaning |\n|---|---|\n"
+            "| `report_contract` | dimension |\n\n## Next\n"
+        )
+        registry = root / "spec" / "07-errors.md"
+        registry.write_text(
+            "# Errors\n\n| Code | Meaning |\n|---|---|\n"
+            "| `TEST_FAILURE` | test |\n| `OTHER_FAILURE` | other |\n"
+        )
+        trace = root / "conformance" / "expectations" / "immutability-v0.2-traceability.md"
+        trace.parent.mkdir(parents=True)
+        trace.write_text(
+            "# Traceability\n\n| Requirement family | Authoritative dimension |\n|---|---|\n"
+            "| `test_family` | `report_contract` |\n\n"
+            "| Requirement | Family | Code | Positive | Negative | Summary |\n"
+            "|---|---|---|---|---|---|\n"
+            "| `CST-TEST-001` | `test_family` | `TEST_FAILURE` | `V02-TEST-001-P` | `V02-TEST-001-N` | test |\n"
+        )
+        cases = root / "conformance" / "expectations" / "immutability-v0.2-cases.md"
+        cases.write_text(
+            "# Cases\n\n| Case | Input | Expected primary result |\n|---|---|---|\n"
+            f"| `V02-TEST-001-P` | good | {positive_result} |\n"
+            f"| `V02-TEST-001-N` | bad | {negative_result} |\n"
+        )
+        self.write_manifest(root, [cases, trace, dimensions, registry, spec])
+
     def test_manifest_closed_package_passes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
@@ -187,6 +225,40 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertIn(
                 {"code": "ERROR_CLASS_STATE_CONFLATION", "detail": "TRANSFER_INCOMPLETE"},
+                report["errors"],
+            )
+
+    def test_case_primary_result_must_match_traceability_class(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, negative_result="`OTHER_FAILURE`")
+
+            result = self.run_validator(root)
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {
+                    "code": "CASE_PRIMARY_RESULT_MISMATCH",
+                    "detail": "V02-TEST-001-N:TEST_FAILURE:OTHER_FAILURE",
+                },
+                report["errors"],
+            )
+
+    def test_case_pass_label_must_be_registered_dimension(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, positive_result="pass `test_family`")
+
+            result = self.run_validator(root)
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {
+                    "code": "CASE_PASS_DIMENSION_UNKNOWN",
+                    "detail": "V02-TEST-001-P:test_family",
+                },
                 report["errors"],
             )
 
