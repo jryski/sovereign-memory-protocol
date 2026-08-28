@@ -39,7 +39,7 @@ SMP does **not** require a universal record format, retrieval engine, vector dat
 
 A memory platform or application can implement SMP directly: native records, custody events, authority transitions, export/restore, and conformance evidence are designed together.
 
-The PostgreSQL reference implementation belongs in `sovereign-memory-core`, not in this protocol repository.
+Reference implementations belong outside this protocol repository.
 
 ### 2. Existing systems introduced to agentic workloads
 
@@ -49,7 +49,7 @@ The current design proposal is an **Agent Access Integrity Boundary**: before an
 
 This does **not** prove the pre-T0 data was correct or historically untampered. It establishes a forward evidence boundary.
 
-See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md) and [issue #9](https://github.com/jryski/sovereign-memory-protocol/issues/9). The concept is accepted for further design with amendments; it is not yet a normative SMP profile.
+See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md) and protocol issue #9. The concept is accepted for further design with amendments; it is not yet a normative SMP profile.
 
 ## Authority layers
 
