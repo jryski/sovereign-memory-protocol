@@ -2,7 +2,7 @@
 
 _Status: repository-native orientation page; informative, not normative_
 
-This file is the version-controlled source for high-level SMP orientation. If a GitHub Wiki is maintained separately, it should mirror this page rather than become a second authority.
+This file is the version-controlled source for high-level SMP orientation. If a separate hosted wiki is maintained, it should mirror this page rather than become a second authority.
 
 ## What is SMP?
 
@@ -47,15 +47,11 @@ Owns meaning:
 - verification/conformance;
 - profiles and claim limits.
 
-Repository: `sovereign-memory-protocol`.
-
 ### Reference implementation
 
 Owns one portable implementation of protocol semantics.
 
-For the current PostgreSQL work, this is `sovereign-memory-core`.
-
-PostgreSQL mechanics must not silently become protocol requirements.
+Implementation-specific mechanics must not silently become protocol requirements.
 
 ### Deployment/application
 
@@ -70,7 +66,7 @@ Owns:
 - recovery operations;
 - deployment acceptance.
 
-A deployment may be SMP-conformant without copying the Core schema.
+A deployment may be SMP-conformant without copying a reference schema.
 
 ## Core concepts
 
@@ -166,7 +162,7 @@ The design remains proposed until these concepts are reconciled into a reviewed 
 1. Integrate PR #5 onto PR #1 and freeze one combined exact baseline.
 2. Add evaluability, self-description, claim-scope, and human-approval semantics.
 3. Refine issue #9 into the Agent Access Integrity Boundary design/threat/conformance matrix.
-4. Add portable machine-readable fixtures and a non-PostgreSQL runner.
+4. Add portable machine-readable fixtures and a materially different substrate runner.
 5. Keep substrate mechanics in profiles/reference implementations.
 6. Prepare publication/licensing only after the private protocol surface stabilizes.
 
