@@ -15,7 +15,7 @@ SMP should let an independent verifier answer, with bounded claims:
 - who or what was authorized to perform a transition;
 - what was actually evaluated and what remains unknown;
 - whether custody and provenance survive export, transfer, restore, provider change, or model/runtime change;
-- when AI/agent access is introduced to an existing system, what the protected state was at the access boundary and what can be proven about changes after that point.
+- when AI/agent access is introduced to an existing system, what protected surface/state was **observed and committed** at the access boundary and what can be proven about changes after that point.
 
 The protocol should accomplish this without requiring one storage engine, one memory schema, one model, or a migration of existing payloads into an SMP-native database.
 
@@ -66,7 +66,9 @@ Add bounded implementation-neutral drafts for:
 
 Revise issue #9 into a protocol-quality design before normative promotion.
 
-The current concept: before a novel agentic principal is granted access to an existing data system, establish a scoped T0 reference over the protected surface, bind first access to the accepted enrollment evidence, and evaluate post-T0 observations and mutations against explicit assurance dimensions.
+The current proposal: before a novel agentic principal is granted access to an existing data system, establish a scoped T0 reference over the protected surface, bind first access to accepted enrollment evidence, and evaluate post-T0 observations and mutations against explicit assurance dimensions.
+
+Peer review currently records Ariadne `ACCEPT WITH AMENDMENTS` and Warden `AMEND`; principal acceptance and normative promotion are not recorded.
 
 ### Required revisions
 
@@ -75,12 +77,14 @@ The current concept: before a novel agentic principal is granted access to an ex
 - Define a bootstrap ceremony for T0.
 - Include the protected-surface definition itself in the commitment.
 - Distinguish observed change from completeness of change observation.
-- Represent shared-credential attribution ambiguity explicitly.
+- Represent shared-credential attribution ambiguity explicitly, including a machine-evaluable attributed-set/candidate cardinality rather than a singular actor claim where evidence cannot distinguish one actor.
 - Define continuity events for migrations, bulk jobs, failover, PITR, restore, and replica relationships.
 - Define fail-closed `UNKNOWN`, drift, suspension, and degraded-read semantics.
 - Keep the evidence plane commitment/receipt-first; avoid mirroring payloads.
 - Require substrate-specific effective read-only/write-path enumeration.
 - Bind the first `ACCESS_ENABLED` event to an accepted enrollment receipt.
+- Define receipt domain separation and an explicit audience/verifier claim without turning receipts into bearer authorization.
+- Define evidence independence by actual trust/write authority: separate credentials or stores do not create independent custody if the same authority can retroactively rewrite both planes.
 
 ### Suggested assurance dimensions
 
@@ -161,4 +165,4 @@ Before any public protocol release:
 - **Identity, authority, assurance, and runtime attribution are separate.**
 - **Derived state is never authority merely because it is useful.**
 - **Migration is optional unless the implementation genuinely requires it.**
-- **Existing systems can gain an agent-access evidence boundary in situ.**
+- **Existing systems may gain an agent-access evidence boundary in situ if the profile's requirements are eventually accepted.**
