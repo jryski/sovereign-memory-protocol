@@ -106,11 +106,11 @@ Named profiles may bundle dimensions; they must not replace dimensional reportin
 - Machine-readable fixture schemas.
 - Registered result/error/dimension vocabularies.
 - Positive, negative, and broken-control fixtures.
-- At least one deliberately non-PostgreSQL runner/stub.
+- At least one deliberately different substrate runner/stub.
 - Exact review-package and conformance receipts.
 - Coverage reported separately from outcome.
 
-**Exit:** protocol claims can be exercised without PostgreSQL assumptions.
+**Exit:** protocol claims can be exercised without assumptions from one implementation family.
 
 ## Phase 4 — Substrate profiles
 
@@ -118,11 +118,10 @@ Substrate profiles define mechanisms needed to satisfy the portable protocol.
 
 Initial candidates:
 
-- PostgreSQL: catalogs, ACL/role closure, WAL/logical decoding, transaction/LSN continuity, restore boundaries.
-- Git/filesystem: commit/tree/content identities and signer/actor binding.
-- Object storage: immutable/versioned objects, manifest roots, event coverage, delete/durability semantics.
-- SQLite: file/checkpoint/change-observation limitations.
-- MySQL: binlog/ACL/transaction profile.
+- transactional relational database: catalogs, privilege closure, transaction/change-log continuity, restore boundaries;
+- version-control/filesystem: commit/tree/content identities and signer/actor binding;
+- object storage: immutable/versioned objects, manifest roots, event coverage, delete/durability semantics;
+- embedded database: file/checkpoint/change-observation semantics and limitations;
 - SaaS/API systems: explicit lower-assurance profiles where write-path completeness cannot be attested.
 
 Canonical serialization and write-path enumeration belong in each profile.
