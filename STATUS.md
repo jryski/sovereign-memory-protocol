@@ -23,7 +23,7 @@ _Overall status: private pre-release protocol program; baseline integration and 
 | Implementation self-description | Proposed extraction | Needed to make mappings/extensions/deviations explicit |
 | Claim scope / topology | Proposed extraction | Local miss must not become global absence without evaluated coverage |
 | Human approval / actor assurance | Proposed extraction | Approval semantics belong in protocol; authentication/UI remain downstream |
-| Agent Access Integrity Boundary | **Concept accepted with amendments** | Issue #9; forward T0 evidence boundary for introducing agent access to existing systems in situ |
+| Agent Access Integrity Boundary | **Peer-reviewed proposal; principal acceptance unrecorded** | Issue #9; Ariadne `ACCEPT WITH AMENDMENTS`, Warden `AMEND`; not normative or promoted |
 | External anchoring profiles | Informative research | No mandatory witness/anchor mechanism selected |
 | Review-package CI | Draft / active on PRs | Manifest, sanitation, registry, traceability, and package-integrity checks; not protocol conformance |
 | Public release | Blocked | Baseline, vectors, sanitation, license, publication, and exact promotion remain pending |
@@ -47,7 +47,16 @@ _Overall status: private pre-release protocol program; baseline integration and 
 - Verification reports separate definition, evaluation, outcome, coverage, and claim limits.
 - Authority is multidimensional; actor labels are not identity proof.
 - Implementation differences are classified as mappings, extensions, profiles, deviations, limitations, or violations rather than forced into schema parity.
-- Existing systems may be protected in situ as agentic access is introduced; payload migration is not a prerequisite to establishing a post-T0 evidence boundary.
+
+## Proposed direction under issue #9 review
+
+- Existing systems may gain a forward agent-access evidence boundary in situ; payload migration need not be a prerequisite.
+- The protected surface itself should be committed and versioned.
+- Assurance should be reported as orthogonal dimensions rather than a scalar level.
+- First access should be bound to accepted enrollment evidence.
+- Attribution ambiguity, continuity gaps, and evidence-independence limits should be machine-visible rather than inferred.
+
+These issue #9 directions have peer review support but do not yet record principal acceptance or normative promotion.
 
 ## Immediate protocol work
 
