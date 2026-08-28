@@ -137,11 +137,11 @@ There are two different claims:
 1. **A change was observed.**
 2. **Any relevant change would have been observed.**
 
-The second requires more than CDC being enabled.
+The second requires more than a change stream being enabled.
 
 A change-coverage contract should bind:
 
-- native transaction/LSN/binlog/event coordinate;
+- native transaction/change coordinate;
 - source stream identity;
 - capture start/end watermarks;
 - protected-surface version;
@@ -164,16 +164,16 @@ Attribution evidence should preserve the candidate set/assurance rather than man
 
 ## Effective read-only
 
-"Read-only" is not merely the absence of `INSERT`, `UPDATE`, and `DELETE`.
+"Read-only" is not merely the absence of ordinary row-mutation verbs.
 
 A substrate profile must enumerate reachable mutation paths appropriate to that substrate, potentially including:
 
-- non-DML privileges such as truncate/trigger/reference equivalents;
-- stored procedures and security-definer/escalated routines;
+- non-row-level privileges such as truncate/trigger/reference equivalents;
+- stored procedures and escalated routines;
 - role and group membership closure;
 - object creation or trigger attachment;
 - queues/jobs/event sinks;
-- FDW/dblink/external API writes;
+- external connectors and service APIs;
 - object-store writes/deletes;
 - admin/control-plane capabilities;
 - indirect write/exfiltration compositions.
@@ -233,7 +233,7 @@ Prefer:
 - roots;
 - chunk/page/segment commitments;
 - byte lengths/counts;
-- native transaction coordinates;
+- native transaction/change coordinates;
 - bounded identifiers;
 - actor/credential assurance;
 - continuity receipts;
@@ -273,11 +273,10 @@ Profiles specify mechanisms.
 
 Examples:
 
-- PostgreSQL: catalog/ACL closure, canonical snapshot rules, WAL/logical decoding, transaction/LSN continuity.
-- MySQL: binlog, transaction, privilege/write-path profile.
-- SQLite: file/checkpoint semantics and limitations.
-- Git: commit/tree/ref identities and agent signer binding.
-- Object storage: immutable/versioned object requirements, manifest/event/delete semantics.
+- transactional relational store: catalog/privilege closure, canonical snapshot rules, transaction/change-log continuity;
+- embedded database: file/checkpoint semantics and limitations;
+- version-control/filesystem: commit/tree/ref identities and agent signer binding;
+- object storage: immutable/versioned object requirements, manifest/event/delete semantics;
 - SaaS APIs: explicit lower assurance where complete write-path enumeration is unavailable.
 
 Unsupported evidence is `UNSUPPORTED` or `INCOMPLETE`, never PASS.
@@ -317,7 +316,7 @@ Before this becomes normative:
 8. define stream/restore continuity;
 9. define evidence-independence claims;
 10. write implementation-neutral conformance fixtures;
-11. write a PostgreSQL substrate profile separately from the portable core;
-12. exercise at least one non-PostgreSQL profile.
+11. write a transactional-relational substrate profile separately from the portable core;
+12. exercise at least one materially different substrate profile.
 
 No production enrollment is authorized by this document.
