@@ -1,6 +1,6 @@
 # Protocol Status
 
-_Last updated: 2026-08-27_  
+_Last updated: 2026-08-27_
 _Overall status: private pre-release protocol program; baseline integration and new profile design in progress_
 
 ## Current state
@@ -23,7 +23,7 @@ _Overall status: private pre-release protocol program; baseline integration and 
 | Implementation self-description | Proposed extraction | Needed to make mappings/extensions/deviations explicit |
 | Claim scope / topology | Proposed extraction | Local miss must not become global absence without evaluated coverage |
 | Human approval / actor assurance | Proposed extraction | Approval semantics belong in protocol; authentication/UI remain downstream |
-| Agent Access Integrity Boundary | **Peer-reviewed proposal; principal acceptance unrecorded** | Issue #9; Ariadne `ACCEPT WITH AMENDMENTS`, Warden `AMEND`; not normative or promoted |
+| Agent Access Integrity Boundary | **Peer-reviewed proposal; principal acceptance unrecorded** | Issue #9; independent dispositions `ACCEPT WITH AMENDMENTS` and `AMEND`; not normative or promoted |
 | External anchoring profiles | Informative research | No mandatory witness/anchor mechanism selected |
 | Review-package CI | Draft / active on PRs | Manifest, sanitation, registry, traceability, and package-integrity checks; not protocol conformance |
 | Public release | Blocked | Baseline, vectors, sanitation, license, publication, and exact promotion remain pending |

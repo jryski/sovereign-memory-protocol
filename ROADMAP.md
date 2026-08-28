@@ -1,6 +1,6 @@
 # Sovereign Memory Protocol Roadmap
 
-_Status: planning document; not normative protocol text_  
+_Status: planning document; not normative protocol text_
 _Last updated: 2026-08-27_
 
 This roadmap describes sequencing for the protocol repository. It does not authorize implementation, deployment, production enrollment, publication, or a release.
@@ -68,7 +68,7 @@ Revise issue #9 into a protocol-quality design before normative promotion.
 
 The current proposal: before a novel agentic principal is granted access to an existing data system, establish a scoped T0 reference over the protected surface, bind first access to accepted enrollment evidence, and evaluate post-T0 observations and mutations against explicit assurance dimensions.
 
-Peer review currently records Ariadne `ACCEPT WITH AMENDMENTS` and Warden `AMEND`; principal acceptance and normative promotion are not recorded.
+Peer review currently records independent dispositions of `ACCEPT WITH AMENDMENTS` and `AMEND`; principal acceptance and normative promotion are not recorded.
 
 ### Required revisions
 

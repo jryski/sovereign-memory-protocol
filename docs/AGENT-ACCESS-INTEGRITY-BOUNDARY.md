@@ -1,6 +1,6 @@
 # Agent Access Integrity Boundary
 
-_Status: informative design proposal; not normative SMP text_  
+_Status: informative design proposal; not normative SMP text_
 _Source discussion: protocol issue #9 and independent review on 2026-08-27_
 
 ## Problem
@@ -33,7 +33,7 @@ It establishes a reference boundary:
 
 For that reason this document uses **Agent Access Integrity Boundary** as the current working name.
 
-Peer review currently records Ariadne `ACCEPT WITH AMENDMENTS` and Warden `AMEND`. Principal acceptance and normative promotion are unrecorded.
+Peer review currently records independent dispositions of `ACCEPT WITH AMENDMENTS` and `AMEND`. Principal acceptance and normative promotion are unrecorded.
 
 ## Conceptual flow
 

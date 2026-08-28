@@ -50,7 +50,7 @@ The current design proposal is an **Agent Access Integrity Boundary**: before an
 
 This does **not** prove the pre-T0 data was correct or historically untampered. It is intended to establish a forward evidence boundary.
 
-See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md) and protocol issue #9. Peer review is not yet principal acceptance: Ariadne returned `ACCEPT WITH AMENDMENTS`, and Warden returned `AMEND`. Principal acceptance and normative promotion are not recorded.
+See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md) and protocol issue #9. Peer review is not yet principal acceptance: independent reviewers returned `ACCEPT WITH AMENDMENTS` and `AMEND`. Principal acceptance and normative promotion are not recorded.
 
 ## Authority layers
 
@@ -71,7 +71,7 @@ The substantive protocol package currently lives on reviewed draft PR lineages r
 - PR #1 contains the initial protocol review package.
 - PR #5 is the bounded traceability/validator repair stacked on PR #1 and has an exact-head independent ACCEPT for that repair.
 - A combined PR #5-on-#1 exact head has not yet been established and freshly reviewed.
-- Issue #9 proposes the Agent Access Integrity Boundary concept and has peer dispositions of `ACCEPT WITH AMENDMENTS` / `AMEND`; principal acceptance is unrecorded.
+- Issue #9 proposes the Agent Access Integrity Boundary concept and has independent peer dispositions of `ACCEPT WITH AMENDMENTS` / `AMEND`; principal acceptance is unrecorded.
 - No public protocol release, conformance certification, or implementation authorization is implied by these documents.
 
 See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for sequencing.
