@@ -19,7 +19,7 @@ _Overall status: private pre-release protocol program; baseline integration and 
 | Immutability/custody chain v0.2 | **Reviewed draft lineage** | PR #1 carries the package; PR #5 repairs trace/result consistency and validator enforcement |
 | PR #5 bounded repair | **Exact-head ACCEPT** | Repair head `4210473d70ebe68abe70e9775753025ea2c74305`; verdict applies only to the bounded repair |
 | Combined PR #5-on-#1 baseline | **Pending** | Must be integrated, frozen, validated, and freshly exact-head reviewed before baseline merge |
-| Evaluability / proof quality | Proposed extraction | Protocol-level semantics identified from Core evidence; not yet normative |
+| Evaluability / proof quality | Proposed extraction | Protocol-level semantics identified from implementation evidence; not yet normative |
 | Implementation self-description | Proposed extraction | Needed to make mappings/extensions/deviations explicit |
 | Claim scope / topology | Proposed extraction | Local miss must not become global absence without evaluated coverage |
 | Human approval / actor assurance | Proposed extraction | Approval semantics belong in protocol; authentication/UI remain downstream |
@@ -34,9 +34,9 @@ _Overall status: private pre-release protocol program; baseline integration and 
 - A checksum or root authenticates observed bytes under stated assumptions; it does not prove external truth.
 - A T0 enrollment/reference cannot prove the data was correct or untampered before T0.
 - Shared credentials place a ceiling on actor attribution.
-- "Read-only" must be evaluated over effective reachable write surfaces, not inferred from absence of ordinary DML grants.
+- "Read-only" must be evaluated over effective reachable write surfaces, not inferred from absence of ordinary mutation grants.
 - Recovery/provider exit is a separate claim from integrity, provenance, or currentness.
-- PostgreSQL-specific mechanisms belong in an implementation/profile layer, not in implementation-neutral protocol semantics.
+- Substrate-specific mechanisms belong in implementation/profile layers, not in implementation-neutral protocol semantics.
 
 ## Accepted direction
 
@@ -61,8 +61,8 @@ _Overall status: private pre-release protocol program; baseline integration and 
    - claim scope/topology;
    - human approval/actor assurance.
 6. Revise issue #9 into an Agent Access Integrity Boundary design/threat/conformance matrix using orthogonal assurance dimensions before any normative profile draft.
-7. Add implementation-neutral machine-readable fixtures and a non-PostgreSQL neutrality runner before broad conformance claims.
-8. Keep PostgreSQL, object-storage, Git, SaaS, and other substrate mechanics in substrate profiles/reference implementations.
+7. Add implementation-neutral machine-readable fixtures and a deliberately different substrate neutrality runner before broad conformance claims.
+8. Keep substrate-specific mechanics in substrate profiles/reference implementations.
 
 ## Promotion gates
 
