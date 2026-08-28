@@ -18,9 +18,9 @@ SMP is intended to make those claims explicit, bounded, and independently evalua
 
 > **Formats move bytes. SMP preserves custody, lineage, authority boundaries, and the evidence needed to evaluate change.**
 
-## What SMP specifies
+## What the current draft specifies
 
-SMP specifies implementation-neutral semantics for:
+The current draft package specifies implementation-neutral semantics for:
 
 - evidence identity and source-to-derived lineage;
 - proposal, inference, acceptance, conflict, correction, supersession, retirement, and withdrawal;
@@ -28,8 +28,9 @@ SMP specifies implementation-neutral semantics for:
 - immutable custody envelopes, erasable payloads, and rebuildable projections;
 - verification outcomes, coverage, unknown states, and claim limits;
 - export, transfer, restore, freshness, provider-exit, and recovery evidence;
-- explicit limits on truth, completeness, currentness, erasure, and availability claims;
-- progressively governed introduction of AI/agent access to existing information systems.
+- explicit limits on truth, completeness, currentness, erasure, and availability claims.
+
+The roadmap separately proposes additional protocol semantics for progressively governed introduction of AI/agent access to existing information systems. Those proposed semantics are not yet normative SMP requirements.
 
 SMP does **not** require a universal record format, retrieval engine, vector database, storage product, cloud provider, or application architecture.
 
@@ -43,13 +44,13 @@ Reference implementations belong outside this protocol repository.
 
 ### 2. Existing systems introduced to agentic workloads
 
-SMP should also be usable **in situ**, without migrating the native payload first.
+SMP is being designed to support **in-situ** adoption without migrating the native payload first.
 
-The current design proposal is an **Agent Access Integrity Boundary**: before an AI agent receives access to a legacy or existing system of record, establish a scoped, independently reviewable T0 reference over the protected surface. First agent access is then bound to that accepted enrollment evidence, and post-T0 changes are evaluated against explicit observation, attribution, mediation, enforcement, and evidence-independence claims.
+The current design proposal is an **Agent Access Integrity Boundary**: before an AI agent receives access to a legacy or existing system of record, establish a scoped, independently reviewable T0 reference over the protected surface. First agent access would then be bound to accepted enrollment evidence, and post-T0 changes would be evaluated against explicit observation, attribution, mediation, enforcement, and evidence-independence claims.
 
-This does **not** prove the pre-T0 data was correct or historically untampered. It establishes a forward evidence boundary.
+This does **not** prove the pre-T0 data was correct or historically untampered. It is intended to establish a forward evidence boundary.
 
-See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md) and protocol issue #9. The concept is accepted for further design with amendments; it is not yet a normative SMP profile.
+See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md) and protocol issue #9. Peer review is not yet principal acceptance: Ariadne returned `ACCEPT WITH AMENDMENTS`, and Warden returned `AMEND`. Principal acceptance and normative promotion are not recorded.
 
 ## Authority layers
 
@@ -70,7 +71,7 @@ The substantive protocol package currently lives on reviewed draft PR lineages r
 - PR #1 contains the initial protocol review package.
 - PR #5 is the bounded traceability/validator repair stacked on PR #1 and has an exact-head independent ACCEPT for that repair.
 - A combined PR #5-on-#1 exact head has not yet been established and freshly reviewed.
-- Issue #9 proposes the Agent Access Integrity Boundary concept and has received independent `ACCEPT WITH AMENDMENTS` / `AMEND` review.
+- Issue #9 proposes the Agent Access Integrity Boundary concept and has peer dispositions of `ACCEPT WITH AMENDMENTS` / `AMEND`; principal acceptance is unrecorded.
 - No public protocol release, conformance certification, or implementation authorization is implied by these documents.
 
 See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for sequencing.
