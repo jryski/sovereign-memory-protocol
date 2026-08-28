@@ -19,7 +19,7 @@ Before a novel agentic workload is allowed to access a legacy or existing system
 
 The native data stays in place.
 
-SMP supplies the forward provenance/custody/integrity evidence boundary around the introduction of the novel actor.
+The proposed profile would define a forward provenance/custody/integrity evidence boundary around the introduction of the novel actor. It is not yet normative SMP.
 
 ## Naming and claim limit
 
@@ -32,6 +32,8 @@ It establishes a reference boundary:
 > At accepted T0, protected surface S was observed and committed under evidence set E. Pre-T0 provenance is unknown except where separately evidenced. Post-T0 observations and mutations are covered only to the degree stated by the assurance dimensions.
 
 For that reason this document uses **Agent Access Integrity Boundary** as the current working name.
+
+Peer review currently records Ariadne `ACCEPT WITH AMENDMENTS` and Warden `AMEND`. Principal acceptance and normative promotion are unrecorded.
 
 ## Conceptual flow
 
@@ -160,7 +162,7 @@ If multiple actors share the same native credential, native attribution is ambig
 
 SMP may know which agent requested an operation, but it must not represent that as proof that the native mutation was caused by that agent unless a trustworthy mediation/credential boundary connects the two.
 
-Attribution evidence should preserve the candidate set/assurance rather than manufacture a singular actor.
+Attribution evidence should preserve the candidate set and its assurance rather than manufacture a singular actor. A machine-readable form should expose the candidate/attributed-set cardinality; a singular native actor claim is only justified when that cardinality is one under the stated evidence model.
 
 ## Effective read-only
 
@@ -249,6 +251,12 @@ Avoid:
 
 Low-entropy hashes are enumerable and can become privacy leaks. Prefer row/page/segment commitments rather than cell-level commitments.
 
+## Receipt semantics
+
+Any eventual enrollment/change/access receipt should be domain-separated by purpose and schema version and should declare an intended audience/verifier class. A receipt is evidence, not an authorization token.
+
+The design should avoid embedding secrets, bearer credentials, raw query text, or payload-equivalent values merely to make a receipt self-describing.
+
 ## Evidence independence
 
 A self-attested root is useful monitoring evidence but is not independent custody.
@@ -262,6 +270,8 @@ Possible topologies include:
 - external timestamp/witness;
 - append-only transparency log;
 - content-addressed receipts anchored outside the source trust domain.
+
+Topology alone does not establish independence. A separate credential, schema, database, or store is not independently held evidence if the same effective write authority can retroactively alter both the source and the evidence plane. Assurance must describe actual trust/write-authority separation.
 
 The protocol should expose the assurance, not force one topology.
 
@@ -308,13 +318,13 @@ Before this becomes normative:
 
 1. reconcile the dimension registry;
 2. define protected-surface and enrollment receipt schemas;
-3. define canonical domain-separated commitment/root envelopes;
+3. define canonical domain-separated commitment/root envelopes and receipt audience/verifier semantics;
 4. define `ACCESS_ENABLED`;
 5. define observation/change coverage;
-6. define actor/credential assurance;
+6. define actor/credential assurance, including ambiguity/cardinality reporting;
 7. freeze the drift/suspension state machine;
 8. define stream/restore continuity;
-9. define evidence-independence claims;
+9. define evidence-independence claims in terms of effective trust/write authority;
 10. write implementation-neutral conformance fixtures;
 11. write a transactional-relational substrate profile separately from the portable core;
 12. exercise at least one materially different substrate profile.
