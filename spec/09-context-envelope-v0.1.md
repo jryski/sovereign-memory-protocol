@@ -1,4 +1,4 @@
-# SAOS-0017 — Context Envelope v0.1
+# SMP Context Envelope v0.1
 
 **Status:** candidate specification; documentation-only, implementation-neutral
 **Version:** `context-envelope/v0.1`
@@ -55,7 +55,7 @@ Allowed states are:
 - `not_applicable`: the field does not apply to this item; and
 - `conflict`: two or more preserved assertions cannot presently be treated as one value.
 
-For `conflict`, the competing assertions MUST remain addressable and MUST include their own provenance. A consumer MUST NOT select a winner merely because one appears first. A conflict MAY include a prior resolution record, but that record does not erase the competing history.
+For `conflict`, the competing assertions MUST remain addressable and MUST include their own provenance. A consumer MUST NOT select a winner by array/document ordering, recency, timestamp, or an item's current/non-current status. Resolving a conflict requires an explicit resolution record under §6. A prior resolution record does not erase the competing history.
 
 Example:
 
@@ -75,7 +75,28 @@ Example:
 
 ## 4. Context item semantics
 
-Each item MUST have an `item_id`, `kind`, `content`, `status`, `provenance`, and `review`. `kind` is a protocol-level category such as `evidence`, `claim`, `decision`, `preference`, `instruction`, `summary`, or `observation`; deployments MAY define additional kinds without changing the envelope contract. `review` MUST be an object with `state` and MUST use one of `unreviewed`, `in_review`, `accepted`, `rejected`, `held`, or `unresolved`; it SHOULD include `reviewed_at`, `reviewer`, `basis_refs`, and `note` when applicable. `accepted` and `rejected` require an identified reviewer and basis; `held` and `unresolved` do not authorize treating a contested assertion as settled.
+Each item MUST have an `item_id`, `kind`, `content`, `status`, `provenance`, and `review`.
+`kind` is a protocol-level category such as `evidence`, `claim`, `decision`, `preference`,
+`instruction`, `summary`, or `observation`; deployments MAY define additional kinds without
+changing the envelope contract.
+
+`review` MUST be an object containing:
+
+- `state`: exactly one of `unreviewed`, `in_review`, `unresolved`, `held`, `accepted`, or
+  `rejected`;
+- `reviewed_at`: a timestamp for `held`, `accepted`, or `rejected`, otherwise an explicit
+  `unknown`, `unavailable`, or `not_applicable` value-status object;
+- `reviewed_by`: an opaque reviewer reference for `held`, `accepted`, or `rejected`, otherwise
+  an explicit value-status object;
+- `basis_refs`: an array of zero or more item, evidence, or source references; and
+- `note`: a string or an explicit `not_applicable` value-status object.
+
+`unreviewed` means no review has begun. `in_review` means review is active. `unresolved` means
+review has not reached an authorized disposition. `held` means an authorized reviewer
+explicitly declined to select a winner or approve the item. `accepted` and `rejected` are
+review dispositions, not execution credentials. A review with an unknown state, a missing
+required member, or an unattributed `held`/`accepted`/`rejected` disposition is malformed and
+MUST fail closed. Changing current `review` state MUST NOT erase required §6 resolution history.
 
 `status` MUST include an explicit state, and SHOULD also include:
 
@@ -112,9 +133,20 @@ A later resolution supersedes the decision's effect where policy permits, but MU
 
 ## 7. Capabilities, policies, and permitted next actions
 
-Capabilities are scoped assertions, not ambient permissions. Each capability MUST state `capability_id`, `scope`, `holder`, and `granted_by`, and MUST state `granted_at` plus either `expires_at` or an explicit expiry disposition. The expiry disposition MUST be either a concrete expiry, an explicit no-expiry policy reference, or an explicit value-status object explaining why expiry is unknown or unavailable. Authority components MUST NOT be omitted; unknown or unavailable components use the value-status form in §3. Examples include `read_context`, `propose_correction`, `request_evidence`, `export_context`, and `review_conflict`.
+Capabilities are scoped assertions, not ambient permissions. Each capability MUST state
+`capability_id`, `scope`, `holder`, `granted_by`, and `granted_at`, plus exactly one expiry
+disposition: `expires_at`, `no_expiry_policy_ref`, or an explicit value-status object explaining
+why expiry is unknown or unavailable. Authority components MUST NOT be omitted; unknown or
+unavailable components use the value-status form in §3. A capability with an unknown or
+unavailable authority component MUST NOT contribute to `permitted_next_actions` until current
+re-authorization supplies that component. Examples include `read_context`,
+`propose_correction`, `request_evidence`, `export_context`, and `review_conflict`.
 
-Policies MUST state applicable constraints, including data handling, disclosure boundaries, retention/erasure rules, consequential-domain requirements, review requirements, and escalation behavior. A policy can deny an action even when a capability exists.
+Policies MUST state applicable constraints, including data handling, disclosure boundaries,
+retention/erasure rules, consequential-domain requirements, review requirements, and
+escalation behavior. When `valid_until` is absent, at least one applicable policy MUST state a
+maximum envelope age measured from `issued_at`; if no such policy is available, the envelope
+MUST fail closed for consumer use. A policy can deny an action even when a capability exists.
 
 `permitted_next_actions` MUST be the intersection of capability, policy, item state, and envelope validity. Each action SHOULD include `action`, `target_refs`, `preconditions`, and `requires_review`. Consumers MUST treat any action not listed as disallowed or requiring separate authorization.
 
@@ -134,7 +166,7 @@ The assertions in a v0.1 envelope—including `capabilities`, `policies`, and `p
       "content":{"delivery_day":"monday"},
       "status":{"state":"conflicted","observed_at":"2030-03-01T10:00:00Z"},
       "provenance":{"basis":"human_direct","source_ref":"example-chat-01","recorded_by":"example-runtime"},
-      "review":{"state":"held"},
+      "review":{"state":"held","reviewed_at":"2030-03-02T12:00:00Z","reviewed_by":"example-reviewer","basis_refs":["example-chat-01"],"note":"No assertion is authorized while the conflict remains."},
       "prior_resolutions":[{"resolution_id":"res-1","outcome":"held","actor":"example-reviewer","at":"2030-03-02T12:00:00Z","basis_refs":["item-101","item-119"],"question":"Which delivery-day assertion, if any, is authorized for current use?","authorized_basis":"human review is required by household-review-before-change","disposition":"No assertion authorized; preserve the conflict and request evidence.","note":"The competing assertions remain unresolved."}]
     },
     {
@@ -142,14 +174,14 @@ The assertions in a v0.1 envelope—including `capabilities`, `policies`, and `p
       "content":{"delivery_day":"wednesday"},
       "status":{"state":"conflicted","observed_at":"2030-03-10T10:00:00Z","reason":"competing_assertion_with_item-101"},
       "provenance":{"basis":"agent_summary","source_ref":"example-chat-02","derived_from":["example-chat-02"],"recorded_by":"example-runtime"},
-      "review":{"state":"unresolved"},
-      "prior_resolutions":[{"resolution_id":"res-2","outcome":"held","actor":"example-reviewer","at":"2030-03-11T12:00:00Z","basis_refs":["item-101","item-119"],"note":"Both human_direct and agent_summary assertions remain conflicted; no winner selected."}]
+      "review":{"state":"unresolved","reviewed_at":{"state":"not_applicable","reason":"no_disposition"},"reviewed_by":{"state":"unknown","reason":"reviewer_not_assigned"},"basis_refs":[],"note":"Conflict remains unresolved."},
+      "prior_resolutions":[{"resolution_id":"res-2","outcome":"held","actor":"example-reviewer","at":"2030-03-11T12:00:00Z","basis_refs":["item-101","item-119"],"question":"Which delivery-day assertion, if any, is authorized for current use?","authorized_basis":"human review is required by household-review-before-change","disposition":"No assertion authorized; preserve both as conflicted.","note":"Both human_direct and agent_summary assertions remain conflicted; no winner selected."}]
     }
   ],
   "capabilities":[{"capability_id":"request_evidence","scope":"subject","holder":"example-reviewer","granted_by":"example-policy-authority","granted_at":"2030-04-02T09:00:00Z","expires_at":"2030-04-09T00:00:00Z"}],
   "policies":[
     {"policy_id":"household-review-before-change","rule":"conflicts require human review; no change action is permitted while unresolved"},
-    {"policy_id":"household-envelope-max-age","rule":"valid_until is absent; consumer use expires 24 hours after issued_at"},
+    {"policy_id":"household-envelope-max-age","maximum_envelope_age_seconds":86400,"rule":"valid_until is absent; consumer use expires 24 hours after issued_at"},
     {"policy_id":"household-data-handling","rule":"synthetic context is for this envelope's review only; disclosure outside the subject scope, retention beyond the review record, and consequential action are not applicable or authorized; escalation is to the designated human reviewer"}
   ],
   "permitted_next_actions":[{"action":"request_evidence","target_refs":["item-101","item-119"],"requires_review":false}],
@@ -174,8 +206,8 @@ No household member, chore, purchase, or calendar table is prescribed by this ex
       "content":{"proposal_ref":"ticket:budget-042","amount":{"currency":"USD","value":12500}},
       "status":{"state":"current","observed_at":"2030-04-02T08:30:00Z"},
       "provenance":{"basis":"agent_inference","source_ref":"ticket:budget-042","derived_from":["decision-record:budget-q2"],"recorded_by":"example-runtime"},
-      "review":{"state":"held"},
-      "prior_resolutions":[{"resolution_id":"res-budget-1","outcome":"held","actor":"example-reviewer","at":"2030-04-02T08:45:00Z","basis_refs":["ticket:budget-042"]}]
+      "review":{"state":"held","reviewed_at":"2030-04-02T08:45:00Z","reviewed_by":"example-reviewer","basis_refs":["ticket:budget-042"],"note":"No budget disposition is authorized by this envelope."},
+      "prior_resolutions":[{"resolution_id":"res-budget-1","outcome":"held","actor":"example-reviewer","at":"2030-04-02T08:45:00Z","basis_refs":["ticket:budget-042"],"question":"May this budget claim support payment approval?","authorized_basis":"business-payment-review requires separate human authority","disposition":"Hold the claim for evidence review; no payment approval is authorized.","note":"The envelope remains evidence-only."}]
     }
   ],
   "capabilities":[
@@ -199,7 +231,12 @@ This synthetic envelope deliberately has no `approve_payment` action. No busines
 
 ## 10. Compatibility and validation expectations
 
-A v0.1 producer MUST emit the version identifier and MUST preserve unknown extension members or report them as unsupported; it MUST NOT reinterpret an unknown field as permission. A consumer MUST fail closed for malformed required structure, expired envelopes where expiry is enforced, missing provenance on claims that policy marks consequential, and actions absent from `permitted_next_actions`.
+A v0.1 producer MUST emit the version identifier and MUST preserve unknown extension members or
+report them as unsupported; it MUST NOT reinterpret an unknown field as permission. A consumer
+MUST fail closed for malformed required structure, envelopes past `valid_until`, envelopes
+without `valid_until` when no applicable maximum-age policy is available, envelopes older than
+the applicable policy maximum age measured from `issued_at`, missing provenance on claims that
+policy marks consequential, and actions absent from `permitted_next_actions`.
 
 This specification is intentionally not a claim that any repository, runtime, Household deployment, or Business deployment implements or conforms to it. Conformance, if later defined, requires a separately published probe suite covering unknowns, conflicts, provenance attribution, stale-state suppression, prior-resolution preservation, capability expiry, policy denial, and action allowlisting.
 
