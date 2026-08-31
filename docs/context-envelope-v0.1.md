@@ -65,8 +65,8 @@ Example:
   "value": {
     "state": "conflict",
     "alternatives": [
-      {"value": "monday", "item_id": "item-101"},
-      {"value": "wednesday", "item_id": "item-119"}
+      {"value": "monday", "item_id": "item-101", "provenance":{"basis":"human_direct","source_ref":"example-chat-01"}},
+      {"value": "wednesday", "item_id": "item-119", "provenance":{"basis":"agent_summary","source_ref":"example-chat-02"}}
     ],
     "reason": "contradictory_current_claims"
   }
@@ -135,7 +135,7 @@ The assertions in a v0.1 envelope—including `capabilities`, `policies`, and `p
       "status":{"state":"conflicted","observed_at":"2030-03-01T10:00:00Z"},
       "provenance":{"basis":"human_direct","source_ref":"example-chat-01","recorded_by":"example-runtime"},
       "review":{"state":"held"},
-      "prior_resolutions":[{"resolution_id":"res-1","outcome":"held","actor":"example-reviewer","at":"2030-03-02T12:00:00Z"}]
+      "prior_resolutions":[{"resolution_id":"res-1","outcome":"held","actor":"example-reviewer","at":"2030-03-02T12:00:00Z","basis_refs":["item-101","item-119"],"question":"Which delivery-day assertion, if any, is authorized for current use?","authorized_basis":"human review is required by household-review-before-change","disposition":"No assertion authorized; preserve the conflict and request evidence.","note":"The competing assertions remain unresolved."}]
     },
     {
       "item_id":"item-119","kind":"preference",
@@ -147,7 +147,11 @@ The assertions in a v0.1 envelope—including `capabilities`, `policies`, and `p
     }
   ],
   "capabilities":[{"capability_id":"request_evidence","scope":"subject","holder":"example-reviewer","granted_by":"example-policy-authority","granted_at":"2030-04-02T09:00:00Z","expires_at":"2030-04-09T00:00:00Z"}],
-  "policies":[{"policy_id":"household-review-before-change","rule":"conflicts require human review"}],
+  "policies":[
+    {"policy_id":"household-review-before-change","rule":"conflicts require human review; no change action is permitted while unresolved"},
+    {"policy_id":"household-envelope-max-age","rule":"valid_until is absent; consumer use expires 24 hours after issued_at"},
+    {"policy_id":"household-data-handling","rule":"synthetic context is for this envelope's review only; disclosure outside the subject scope, retention beyond the review record, and consequential action are not applicable or authorized; escalation is to the designated human reviewer"}
+  ],
   "permitted_next_actions":[{"action":"request_evidence","target_refs":["item-101","item-119"],"requires_review":false}],
   "assembly":{"assembled_by":"example-runtime","completeness":{"state":"known"},"limitations":[]}
 }
@@ -175,10 +179,14 @@ No household member, chore, purchase, or calendar table is prescribed by this ex
     }
   ],
   "capabilities":[
-    {"capability_id":"request_evidence","scope":"subject","holder":"example-reviewer","granted_by":"example-policy-authority","expires_at":"2030-04-02T17:00:00Z"},
-    {"capability_id":"propose_correction","scope":"item:item-budget-042","holder":"example-agent","granted_by":"example-policy-authority","expires_at":"2030-04-02T17:00:00Z"}
+    {"capability_id":"request_evidence","scope":"subject","holder":"example-reviewer","granted_by":"example-policy-authority","granted_at":"2030-04-02T09:00:00Z","expires_at":"2030-04-02T17:00:00Z"},
+    {"capability_id":"propose_correction","scope":"item:item-budget-042","holder":"example-agent","granted_by":"example-policy-authority","granted_at":"2030-04-02T09:00:00Z","expires_at":"2030-04-02T17:00:00Z"}
   ],
-  "policies":[{"policy_id":"business-payment-review","rule":"budget claims require human review; this envelope does not authorize payment approval"},{"policy_id":"business-envelope-max-age","rule":"when valid_until is absent, consumer use expires 24 hours after issued_at"}],
+  "policies":[
+    {"policy_id":"business-payment-review","rule":"budget claims require human review; this envelope does not authorize payment approval"},
+    {"policy_id":"business-envelope-max-age","rule":"when valid_until is absent, consumer use expires 24 hours after issued_at"},
+    {"policy_id":"business-data-handling","rule":"synthetic budget context is restricted to the example team and review purpose; external disclosure and retention beyond the authorized review record are not permitted; escalation is to the designated human reviewer; payment, regulated, and other consequential processing is outside this envelope and requires separate authorization"}
+  ],
   "permitted_next_actions":[
     {"action":"request_evidence","target_refs":["item-budget-042"],"requires_review":false},
     {"action":"propose_correction","target_refs":["item-budget-042"],"requires_review":true}
