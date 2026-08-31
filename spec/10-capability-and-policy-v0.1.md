@@ -25,6 +25,8 @@ It MUST distinguish:
 
 A capability or policy record is not self-authenticating. Possession of this document, a Context Envelope, a task assignment, an agent prompt, a model output, or an approval display MUST NOT by itself authorize execution.
 
+A Context Envelope MAY carry opaque capability, policy, grant, or decision references conforming to `capability-policy/v0.1`. Those envelope assertions remain non-authoritative until current evaluation under this contract.
+
 ## 2. Scheduling metadata is non-authoritative
 
 Task priority, queue position, assignment, lease, due date, retry count, worker eligibility, status, labels, routing hints, model selection, and estimated cost are scheduling metadata. They MAY select which worker considers a task, but MUST NOT create, widen, prove, or replace authority.
@@ -200,6 +202,7 @@ Every delegated grant MUST satisfy all of these invariants:
 10. Delegation history is append-only; repair creates a successor rather than rewriting the chain.
 
 When attenuation cannot be proven, the child grant is invalid.
+A consumer MUST re-derive attenuation from the referenced parent chain and current policy. It MUST NOT rely on a producer-asserted boolean or unbound summary claiming that attenuation was verified.
 
 ## 7. Evaluation algorithm and precedence
 
@@ -400,7 +403,24 @@ The scheduler assignment does not grant `request_evidence`. The decision is vali
     "recorded_at": "2030-04-02T08:51:00Z",
     "not_before": "2030-04-02T09:00:00Z",
     "expires_at": "2030-04-02T17:00:00Z",
-    "delegation": {"parent_grant": "grant-business-owner-1", "chain_depth": 1, "redelegation_allowed": false, "attenuation_verified": true},
+    "delegation": {
+      "parent_grant": "grant-business-owner-1",
+      "chain_depth": 1,
+      "redelegation_allowed": false,
+      "attenuation_evidence": {
+        "derived_by": "policy-evaluator:example-v1",
+        "derived_at": "2030-04-02T08:51:00Z",
+        "basis_refs": ["grant-business-owner-1", "grant-business-agent-1", "policy:business-proposal/v2"],
+        "comparisons": {
+          "operations": {"parent": ["propose_correction"], "child": ["propose_correction"], "result": "equal"},
+          "resource_scope": {"parent": {"subject_ref": "business:example-team", "proposal_refs": ["proposal:budget-042"]}, "child": {"subject_ref": "business:example-team", "proposal_refs": ["proposal:budget-042"]}, "result": "equal"},
+          "conditions": {"parent": ["proposal only", "no payment or canonical apply"], "child": ["proposal only", "human review required", "no payment or canonical apply"], "result": "child_stricter"},
+          "assurance_requirement": {"parent": "verified_owner_session", "child": "verified_client_and_owner_session", "result": "child_stricter"},
+          "expires_at": {"parent": "2030-04-30T00:00:00Z", "child": "2030-04-02T17:00:00Z", "result": "child_earlier"}
+        },
+        "result": "attenuated"
+      }
+    },
     "status": "active",
     "version": 1,
     "revocation_check": "required_at_execution"
