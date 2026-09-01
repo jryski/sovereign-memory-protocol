@@ -2,7 +2,7 @@
 
 > **Program:** Sovereign AI OS  
 > **Role class:** implementation-neutral protocol  
-> **Ecosystem context:** [`jryski/sovereign-memory-core/docs/ecosystem/SOVEREIGN_AI_OS.md`](https://github.com/jryski/sovereign-memory-core/blob/main/docs/ecosystem/SOVEREIGN_AI_OS.md)
+> **Ecosystem context:** reference implementation and downstream deployment architecture
 
 ## Mission
 
@@ -19,7 +19,7 @@ It exists so that durable meaning can survive changes in models, providers, appl
 
 ## This repository does not own
 
-- PostgreSQL-specific schemas or migrations;
+- storage-engine-specific schemas or migrations;
 - household or business ontology;
 - planning-board schemas or workflow policy;
 - user or agent authentication implementation;
@@ -28,9 +28,9 @@ It exists so that durable meaning can survive changes in models, providers, appl
 
 ## Downstream consumers
 
-- Sovereign Memory Core and alternative conforming runtimes;
+- the reference implementation and alternative conforming runtimes;
 - Household OS and private household deployments;
-- Sovereign Vault and other business deployments;
+- business authority stores and other business deployments;
 - importers, exporters, review tools, and federated/local-file profiles.
 
 ## Planning and work-plane relationship

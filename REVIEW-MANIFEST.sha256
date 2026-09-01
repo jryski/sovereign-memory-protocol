@@ -1,9 +1,8 @@
-# Review artifact manifest
-# SHA-256 over repository files; this manifest excludes itself and generated caches.
 d94afe12e4c68df865ae023d65de5a37eab4483caf295a91c4ed886e6d36553f  .github/workflows/review-package.yml
 26d1a59c94e89fc0589e92c53efc3f576c05c818effb65ce146bf924d0de73db  CHANGELOG.md
 fb554cc319cad065cd0265012b37a61ad6f10c97e90707001a27c7b494a5f9d3  GLOSSARY.md
 24009d835b9a86aa03be95c8528bd71af537a3b11786942ef8d56084508fd191  PRINCIPLES.md
+3ad85e686a468d8aaa50db1c116013cbc0073b24886b1c3beb95f8fca8fa9d7e  PROGRAM-ROLE.md
 f8daa3621aab9a36e96219ff9926f966b00922d0e1c8b9fa16ca48973ba3a90d  README.md
 acd2f5cf07292e3945e35de2b93fbd19147b3639d7336cdb02969ae3f3c44058  ROADMAP.md
 f0a666418073deffaa3f5185190c3bc85ddb1fed699da51d08143e516283f187  STATUS.md
