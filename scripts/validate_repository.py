@@ -174,6 +174,26 @@ def validate_status_consistency(root: pathlib.Path, paths: list[pathlib.Path], e
                 errors.append(error("STATUS_PROMOTION_CONFLICT", relative))
 
 
+def validate_spec_supersession(root: pathlib.Path, errors: list[dict[str, str]]) -> None:
+    legacy_relative = "spec/08-immutability-and-chain-of-custody.md"
+    successor_relative = "spec/08-immutability-and-chain-of-custody-v0.2.md"
+    legacy = root / legacy_relative
+    successor = root / successor_relative
+    if not legacy.is_file() or not successor.is_file():
+        return
+    try:
+        text = legacy.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return
+    normalized = " ".join(text.lower().split())
+    if (
+        "superseded" not in normalized
+        or successor_relative.lower() not in normalized
+        or "non-normative historical" not in normalized
+    ):
+        errors.append(error("SPEC_SUPERSESSION_UNDECLARED", legacy_relative))
+
+
 def validate_registry_orthogonality(root: pathlib.Path, errors: list[dict[str, str]]) -> None:
     registry = root / "spec" / "07-errors.md"
     if not registry.is_file():
@@ -333,6 +353,7 @@ def validate(root: pathlib.Path) -> dict[str, Any]:
     validate_markdown_links(root, list(actual_paths.values()), errors)
     validate_sanitation(root, list(actual_paths.values()), errors)
     validate_status_consistency(root, list(actual_paths.values()), errors)
+    validate_spec_supersession(root, errors)
     validate_registry_orthogonality(root, errors)
     metrics = validate_v02_traceability(root, errors)
 

@@ -4,6 +4,11 @@ _Status: **NEEDS REVISION**; private pre-release review draft_
 _Version: 0.1.0-draft.2_
 _Last updated: 2026-07-31_
 
+**Supersession record:** This v0.1 draft is explicitly superseded by
+[`spec/08-immutability-and-chain-of-custody-v0.2.md`](08-immutability-and-chain-of-custody-v0.2.md).
+It is retained only as a **non-normative historical** review artifact. Its capitalized requirement
+keywords do not govern the current draft lineage, implementation claims, or conformance results.
+
 > **Adversarial review notice:** The accepted write-once/correction/authorized-erasure direction is preserved, but this mechanism is not an implementation-authorizing contract. Before promotion it must close the exact recording boundary, complete canonical envelopes, historical authority and key status, registered-stream and anti-rollback semantics, bilateral transfer, erasure closure, restore quarantine, canonical golden vectors, temporal and lifecycle-graph semantics, source-qualified completeness, metadata privacy, and bounded verifier resources.
 
 ## 1. Scope

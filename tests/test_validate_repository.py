@@ -152,6 +152,28 @@ class ReviewPackageValidatorTests(unittest.TestCase):
                 report["errors"],
             )
 
+    def test_parallel_spec_08_versions_require_explicit_legacy_supersession(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            legacy = root / "spec" / "08-immutability-and-chain-of-custody.md"
+            legacy.parent.mkdir()
+            legacy.write_text("# Legacy\n\n_Status: **NEEDS REVISION**_\n")
+            successor = root / "spec" / "08-immutability-and-chain-of-custody-v0.2.md"
+            successor.write_text("# Candidate\n")
+            self.write_manifest(root, [legacy, successor])
+
+            result = self.run_validator(root)
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {
+                    "code": "SPEC_SUPERSESSION_UNDECLARED",
+                    "path": "spec/08-immutability-and-chain-of-custody.md",
+                },
+                report["errors"],
+            )
+
     def test_v02_requirement_missing_from_traceability_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
