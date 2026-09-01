@@ -1,0 +1,45 @@
+name: Review package integrity
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@v4
+
+      - name: Publish tool versions
+        run: |
+          set -euo pipefail
+          printf 'commit=%s\n' "$GITHUB_SHA"
+          python3 --version
+          sha256sum --version | sed -n '1p'
+
+      - name: Run validator unit tests
+        run: python3 -m unittest tests/test_validate_repository.py -v
+
+      - name: Validate exact review package
+        run: |
+          set -euo pipefail
+          python3 scripts/validate_repository.py --root . --json | tee /tmp/review-validation.json
+          sha256sum REVIEW-MANIFEST.sha256 /tmp/review-validation.json | tee /tmp/review-validation.sha256
+
+      - name: Upload deterministic validation receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-validation-${{ github.sha }}
+          path: |
+            /tmp/review-validation.json
+            /tmp/review-validation.sha256
+          if-no-files-found: warn
+          retention-days: 30
