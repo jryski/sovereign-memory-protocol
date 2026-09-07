@@ -22,9 +22,7 @@ MANIFEST_LINE = re.compile(r"^([0-9a-f]{64})  ([^\x00\r\n]+)$")
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 DOCUMENT_SUFFIXES = {".md", ".json", ".toml", ".txt", ".yaml", ".yml"}
 PRIVATE_IDENTIFIER = re.compile(
-    r"(?i)(?:supabase|postgres(?:ql)?|sovereign-memory-core|jryski|"
-    r"AI-MEMORY-ATLAS|claude-warden|model[._-]?channel|\bHOUSE\b|\bVAULT\b|"
-    r"\bLocutus\b|\bAriadne\b|\bWarden\b|(?:\b\d{1,3}\.){3}\d{1,3}\b)"
+    r"(?i)(?:supabase|postgres(?:ql)?|model[._-]?channel|(?:\b\d{1,3}\.){3}\d{1,3}\b)"
 )
 SECRET_PATTERNS = (
     re.compile(r"\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}"),
@@ -131,13 +129,37 @@ def validate_markdown_links(root: pathlib.Path, paths: list[pathlib.Path], error
                 errors.append(error("BROKEN_RELATIVE_LINK", path.relative_to(root).as_posix(), target))
 
 
-def validate_sanitation(root: pathlib.Path, paths: list[pathlib.Path], errors: list[dict[str, str]]) -> None:
+def load_private_identifiers(root: pathlib.Path, policy: pathlib.Path | None,
+                             errors: list[dict[str, str]]) -> tuple[list[str], str]:
+    if policy is None:
+        return [], "not_performed"
+    try:
+        resolved = policy.resolve()
+        if resolved.is_relative_to(root):
+            errors.append(error("PRIVATE_POLICY_INSIDE_PACKAGE"))
+            return [], "invalid"
+        terms = json.loads(resolved.read_text(encoding="utf-8"))
+        if (not isinstance(terms, list) or not terms
+                or any(not isinstance(term, str) or not term.strip() for term in terms)):
+            raise ValueError("invalid policy")
+    except (OSError, UnicodeError, ValueError, RuntimeError):
+        errors.append(error("PRIVATE_POLICY_INVALID"))
+        return [], "invalid"
+    return [term.casefold() for term in terms], "performed"
+
+
+def validate_sanitation(root: pathlib.Path, paths: list[pathlib.Path], errors: list[dict[str, str]],
+                        private_terms: list[str]) -> None:
     for path in paths:
         relative = path.relative_to(root).as_posix()
         try:
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeError):
+            if private_terms:
+                errors.append(error("PRIVATE_SCAN_UNREADABLE", relative))
             continue
+        if any(term in text.casefold() for term in private_terms):
+            errors.append(error("SANITATION_PRIVATE_IDENTIFIER", relative))
         if path.suffix.lower() in DOCUMENT_SUFFIXES:
             for number, line in enumerate(text.splitlines(), 1):
                 if re.match(r"^\d+\|", line):
@@ -352,8 +374,9 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
     }
 
 
-def validate(root: pathlib.Path) -> dict[str, Any]:
+def validate(root: pathlib.Path, private_policy: pathlib.Path | None = None) -> dict[str, Any]:
     errors: list[dict[str, str]] = []
+    private_terms, private_scan = load_private_identifiers(root, private_policy, errors)
     entries = parse_manifest(root, errors)
     actual_paths = {path.relative_to(root).as_posix(): path for path in repository_files(root)}
 
@@ -374,7 +397,7 @@ def validate(root: pathlib.Path) -> dict[str, Any]:
         errors.append(error("MANIFEST_UNLISTED_FILE", relative))
 
     validate_markdown_links(root, list(actual_paths.values()), errors)
-    validate_sanitation(root, list(actual_paths.values()), errors)
+    validate_sanitation(root, list(actual_paths.values()), errors, private_terms)
     validate_status_consistency(root, list(actual_paths.values()), errors)
     validate_spec_supersession(root, errors)
     validate_registry_orthogonality(root, errors)
@@ -387,6 +410,7 @@ def validate(root: pathlib.Path) -> dict[str, Any]:
         "manifest_entries": len(entries),
         "checked_files": len(actual_paths),
         "conformance_evaluation": "not_performed",
+        "private_identifier_scan": private_scan,
         **metrics,
         "errors": errors,
     }
@@ -396,9 +420,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", required=True, help="repository root")
     parser.add_argument("--json", action="store_true", help="emit JSON")
+    parser.add_argument("--private-identifiers", type=pathlib.Path,
+                        help="external JSON array of private literal strings; never included in reports")
     args = parser.parse_args()
     root = pathlib.Path(args.root).resolve()
-    report = validate(root)
+    report = validate(root, args.private_identifiers)
     if args.json:
         print(json.dumps(report, sort_keys=True, separators=(",", ":")))
     else:

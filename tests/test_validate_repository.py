@@ -12,9 +12,9 @@ VALIDATOR = REPO_ROOT / "scripts" / "validate_repository.py"
 
 
 class ReviewPackageValidatorTests(unittest.TestCase):
-    def run_validator(self, root: pathlib.Path) -> subprocess.CompletedProcess[str]:
+    def run_validator(self, root: pathlib.Path, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [sys.executable, str(VALIDATOR), "--root", str(root), "--json"],
+            [sys.executable, str(VALIDATOR), "--root", str(root), "--json", *args],
             text=True,
             capture_output=True,
             check=False,
@@ -26,6 +26,88 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
             entries.append(f"{digest}  {path.relative_to(root).as_posix()}")
         (root / "REVIEW-MANIFEST.sha256").write_text("\n".join(entries) + "\n")
+
+    def test_public_project_links_do_not_require_private_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            readme = root / "README.md"
+            readme.write_text("[Program](https://github.com/jryski/sovereign-memory-core)\n")
+            self.write_manifest(root, [readme])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(json.loads(result.stdout)["private_identifier_scan"], "not_performed")
+
+    def test_external_private_policy_scans_source_without_echoing_terms(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = pathlib.Path(tmp)
+            root = parent / "package"
+            root.mkdir()
+            source = root / "example.py"
+            source.write_text("# SYNTHETIC-PRIVATE-ROUTE\n")
+            policy = parent / "private.json"
+            policy.write_text(json.dumps(["synthetic-private-route"]))
+            self.write_manifest(root, [source])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["private_identifier_scan"], "performed")
+            self.assertIn({"code": "SANITATION_PRIVATE_IDENTIFIER", "path": "example.py"}, report["errors"])
+            self.assertNotIn("synthetic-private-route", result.stdout.lower())
+            self.assertNotIn(str(policy), result.stdout)
+
+    def test_invalid_or_missing_private_policy_fails_closed(self) -> None:
+        for payload in (None, "{", "[]", '[""]', '["  "]', '[3]', '{}'):
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory() as tmp:
+                parent = pathlib.Path(tmp)
+                root = parent / "package"
+                root.mkdir()
+                self.write_manifest(root, [])
+                policy = parent / "private.json"
+                if payload is not None:
+                    policy.write_text(payload)
+                result = self.run_validator(root, "--private-identifiers", str(policy))
+                self.assertEqual(result.returncode, 1)
+                report = json.loads(result.stdout)
+                self.assertEqual(report["private_identifier_scan"], "invalid")
+                self.assertIn({"code": "PRIVATE_POLICY_INVALID"}, report["errors"])
+
+    def test_private_policy_cannot_be_packaged(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            policy = root / "private.json"
+            policy.write_text('["synthetic-private-route"]')
+            self.write_manifest(root, [policy])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 1)
+            self.assertIn({"code": "PRIVATE_POLICY_INSIDE_PACKAGE"}, json.loads(result.stdout)["errors"])
+
+    def test_private_policy_uses_literals_not_regular_expressions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = pathlib.Path(tmp)
+            root = parent / "package"
+            root.mkdir()
+            source = root / "example.py"
+            source.write_text("# ordinary synthetic example\n")
+            policy = parent / "private.json"
+            policy.write_text('[".*"]')
+            self.write_manifest(root, [source])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(json.loads(result.stdout)["private_identifier_scan"], "performed")
+
+    def test_private_scan_does_not_silently_skip_non_utf8(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = pathlib.Path(tmp)
+            root = parent / "package"
+            root.mkdir()
+            source = root / "example.bin"
+            source.write_bytes(b"\xff")
+            policy = parent / "private.json"
+            policy.write_text('["synthetic-private-route"]')
+            self.write_manifest(root, [source])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 1)
+            self.assertIn({"code": "PRIVATE_SCAN_UNREADABLE", "path": "example.bin"}, json.loads(result.stdout)["errors"])
 
     def write_v02_package(
         self,
