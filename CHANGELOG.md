@@ -4,6 +4,15 @@ All notable protocol-review package changes will be recorded here. This file rec
 
 ## Unreleased
 
+### Public draft maintenance
+
+- Correct public visibility and the completed foundation consolidation in orientation, status and roadmap documents.
+- Surface the merged Context Envelope and Capability/Policy candidates in repository navigation.
+- Add contribution, private-reporting and exact-artifact review guidance without selecting a license.
+- Reject malformed positive case results, misplaced negative primaries and positive dimensions inconsistent with their requirement family.
+- Report planned and documented case coverage separately, with conformance evaluation explicitly not performed.
+- Preserve normative candidate text, historical reviews and separate release gates.
+
 ### Added
 
 - Initial private review document tree.
