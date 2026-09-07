@@ -207,13 +207,16 @@ def validate_registry_orthogonality(root: pathlib.Path, errors: list[dict[str, s
         errors.append(error("ERROR_CLASS_STATE_CONFLATION", detail=code))
 
 
-def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) -> dict[str, int]:
+def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) -> dict[str, Any]:
     empty_metrics = {
         "requirements": 0,
         "traceability_rows": 0,
         "case_rows": 0,
         "registered_codes": 0,
         "registered_dimensions": 0,
+        "planned_case_ids": 0,
+        "documented_planned_case_ids": 0,
+        "undocumented_planned_case_ids": [],
     }
     relative_paths = {
         "spec": "spec/08-immutability-and-chain-of-custody-v0.2.md",
@@ -268,6 +271,14 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
         negative: (identifier, code)
         for identifier, _family, code, _positive, negative in trace_rows
     }
+    trace_by_positive_fixture = {
+        positive: family_map.get(family)
+        for _identifier, family, _code, positive, _negative in trace_rows
+    }
+    planned_case_ids = {
+        fixture for _identifier, _family, _code, positive, negative in trace_rows
+        for fixture in (positive, negative)
+    }
 
     for identifier in sorted(set(requirement_ids) - set(trace_ids)):
         errors.append(error("TRACEABILITY_REQUIREMENT_MISSING", detail=identifier))
@@ -296,7 +307,7 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
     for identifier, result in case_rows:
         if identifier in trace_by_negative_fixture:
             _requirement, expected_code = trace_by_negative_fixture[identifier]
-            primary_match = re.search(r"`([A-Z][A-Z0-9_]+)`", result)
+            primary_match = re.match(r"`([A-Z][A-Z0-9_]+)`", result)
             if primary_match is None:
                 errors.append(error("CASE_PRIMARY_RESULT_MISSING", detail=identifier))
             elif primary_match.group(1) != expected_code:
@@ -306,8 +317,11 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
                         detail=f"{identifier}:{expected_code}:{primary_match.group(1)}",
                     )
                 )
-        if identifier.endswith("-P") and result.startswith("pass "):
-            dimension_match = re.search(r"`([a-z][a-z0-9_]+)`", result)
+        if identifier.endswith("-P"):
+            if not result.startswith("pass "):
+                errors.append(error("CASE_PASS_RESULT_MISSING", detail=identifier))
+                continue
+            dimension_match = re.match(r"pass `([a-z][a-z0-9_]+)`", result)
             if dimension_match is None:
                 errors.append(error("CASE_PASS_DIMENSION_MISSING", detail=identifier))
             elif dimension_match.group(1) not in dimension_ids:
@@ -317,6 +331,12 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
                         detail=f"{identifier}:{dimension_match.group(1)}",
                     )
                 )
+            elif (
+                identifier in trace_by_positive_fixture
+                and trace_by_positive_fixture[identifier] is not None
+                and dimension_match.group(1) != trace_by_positive_fixture[identifier]
+            ):
+                errors.append(error("CASE_PASS_DIMENSION_MISMATCH", detail=identifier))
     for identifier in sorted({value for value in case_ids if case_ids.count(value) > 1}):
         errors.append(error("CASE_ID_DUPLICATE", detail=identifier))
 
@@ -326,6 +346,9 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
         "case_rows": len(case_ids),
         "registered_codes": len(registry_codes),
         "registered_dimensions": len(dimension_ids),
+        "planned_case_ids": len(planned_case_ids),
+        "documented_planned_case_ids": len(planned_case_ids & set(case_ids)),
+        "undocumented_planned_case_ids": sorted(planned_case_ids - set(case_ids)),
     }
 
 
@@ -363,6 +386,7 @@ def validate(root: pathlib.Path) -> dict[str, Any]:
         "status": "pass" if not errors else "fail",
         "manifest_entries": len(entries),
         "checked_files": len(actual_paths),
+        "conformance_evaluation": "not_performed",
         **metrics,
         "errors": errors,
     }

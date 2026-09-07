@@ -301,6 +301,63 @@ class ReviewPackageValidatorTests(unittest.TestCase):
                 report["errors"],
             )
 
+    def test_positive_case_cannot_skip_pass_validation(self) -> None:
+        for result_text in ("unknown", "`TEST_FAILURE`", "PASS `report_contract`"):
+            with self.subTest(result=result_text), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                self.write_v02_package(root, positive_result=result_text)
+                result = self.run_validator(root)
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(
+                    {"code": "CASE_PASS_RESULT_MISSING", "detail": "V02-TEST-001-P"},
+                    json.loads(result.stdout)["errors"],
+                )
+
+    def test_negative_primary_must_lead_the_result(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, negative_result="unknown; secondary: `TEST_FAILURE`")
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(
+                {"code": "CASE_PRIMARY_RESULT_MISSING", "detail": "V02-TEST-001-N"},
+                json.loads(result.stdout)["errors"],
+            )
+
+    def test_positive_dimension_must_match_its_requirement_family(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, positive_result="pass `other_dimension`")
+            dimensions = root / "spec" / "05-verification.md"
+            dimensions.write_text(dimensions.read_text().replace(
+                "## Next", "| `other_dimension` | other |\n\n## Next"
+            ))
+            self.write_manifest(root, [p for p in root.rglob("*")
+                                      if p.is_file() and p.name != "REVIEW-MANIFEST.sha256"])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(
+                {"code": "CASE_PASS_DIMENSION_MISMATCH", "detail": "V02-TEST-001-P"},
+                json.loads(result.stdout)["errors"],
+            )
+
+    def test_planned_coverage_is_not_executed_conformance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root)
+            cases = root / "conformance" / "expectations" / "immutability-v0.2-cases.md"
+            cases.write_text("\n".join(line for line in cases.read_text().splitlines()
+                                      if "V02-TEST-001-N" not in line) + "\n")
+            self.write_manifest(root, [p for p in root.rglob("*")
+                                      if p.is_file() and p.name != "REVIEW-MANIFEST.sha256"])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["planned_case_ids"], 2)
+            self.assertEqual(report["documented_planned_case_ids"], 1)
+            self.assertEqual(report["undocumented_planned_case_ids"], ["V02-TEST-001-N"])
+            self.assertEqual(report["conformance_evaluation"], "not_performed")
+
     def test_status_value_cannot_masquerade_as_verification_dimension(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)

@@ -1,7 +1,7 @@
 # Protocol Status
 
-_Last updated: 2026-08-27_
-_Overall status: private pre-release protocol program; baseline integration and new profile design in progress_
+_Last updated: 2026-09-07_
+_Overall status: public pre-release protocol draft; consolidated foundation and two shared-contract candidates on main_
 
 ## Current state
 
@@ -18,7 +18,9 @@ _Overall status: private pre-release protocol program; baseline integration and 
 | Immutability/custody chain v0.1 | **NEEDS REVISION / preserved** | Historical review draft remains evidence, not current authority |
 | Immutability/custody chain v0.2 | **Reviewed draft lineage** | PR #1 carries the package; PR #5 repairs trace/result consistency and validator enforcement |
 | PR #5 bounded repair | **Exact-head ACCEPT** | Repair head `4210473d70ebe68abe70e9775753025ea2c74305`; verdict applies only to the bounded repair |
-| Combined PR #5-on-#1 baseline | **Pending** | Must be integrated, frozen, validated, and freshly exact-head reviewed before baseline merge |
+| Consolidated foundation | **Merged draft** | PR #1 absorbed the PR #5 repair and PR #10 orientation work at `fcff842063a8da127f2577c36c4c5316de9c0cce`; this is not a released standard |
+| Context Envelope v0.1 | **Merged candidate** | PR #11, `2494ce043c340d5d887fe0b118a9edeff4aedb85`; executable conformance remains unproven |
+| Capability and Policy Contract v0.1 | **Merged candidate** | PR #12, `32b70a60521b78812ac8d7587d109397e4ab9376`; executable conformance remains unproven |
 | Evaluability / proof quality | Proposed extraction | Protocol-level semantics identified from implementation evidence; not yet normative |
 | Implementation self-description | Proposed extraction | Needed to make mappings/extensions/deviations explicit |
 | Claim scope / topology | Proposed extraction | Local miss must not become global absence without evaluated coverage |
@@ -26,7 +28,8 @@ _Overall status: private pre-release protocol program; baseline integration and 
 | Agent Access Integrity Boundary | **Peer-reviewed proposal; principal acceptance unrecorded** | Issue #9; independent dispositions `ACCEPT WITH AMENDMENTS` and `AMEND`; not normative or promoted |
 | External anchoring profiles | Informative research | No mandatory witness/anchor mechanism selected |
 | Review-package CI | Draft / active on PRs | Manifest, sanitation, registry, traceability, and package-integrity checks; not protocol conformance |
-| Public release | Blocked | Baseline, vectors, sanitation, license, publication, and exact promotion remain pending |
+| Repository visibility | Public | Available for inspection and discussion; private deployment material remains out of scope |
+| Protocol release | Not established | Normative promotion, vectors, license, release-boundary review and exact release approval remain separate gates |
 
 ## Important current claim limits
 
@@ -60,10 +63,10 @@ These issue #9 directions have peer review support but do not yet record princip
 
 ## Immediate protocol work
 
-1. Integrate PR #5 onto the PR #1 lineage.
-2. Freeze the combined exact head and rerun validator/CI.
-3. Obtain fresh independent exact-head review; predecessor verdicts do not transfer automatically.
-4. Establish the private draft baseline only after that review.
+1. Preserve the merged foundation and its exact review history; do not repeat completed stack integration.
+2. Keep repository status and navigation aligned with the Context Envelope and Capability/Policy candidates now on main.
+3. Obtain fresh independent exact-head review for each new change; predecessor verdicts do not transfer automatically.
+4. Separate planned case handles, documented cases and executed conformance evidence in every validation report.
 5. Add the missing protocol semantic areas in bounded review slices:
    - evaluability/proof quality;
    - implementation self-description;

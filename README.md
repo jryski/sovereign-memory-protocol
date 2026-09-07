@@ -56,25 +56,28 @@ See [docs/AGENT-ACCESS-INTEGRITY-BOUNDARY.md](docs/AGENT-ACCESS-INTEGRITY-BOUNDA
 
 SMP distinguishes three authority layers:
 
-1. **Protocol** — implementation-neutral meaning, requirements, profiles, conformance semantics, and claim limits.
-2. **Reference implementation** — portable mechanisms that demonstrate one implementation of the protocol.
-3. **Deployment/application** — local identity, policy, UI, topology, credentials, adapters, and operational acceptance.
+1. **Protocol**: implementation-neutral meaning, requirements, profiles, conformance semantics, and claim limits.
+2. **Reference implementation**: portable mechanisms that demonstrate one implementation of the protocol.
+3. **Deployment/application**: local identity, policy, UI, topology, credentials, adapters, and operational acceptance.
 
 A repository, deployment, store, trust domain, and visibility class are not interchangeable concepts.
 
 ## Repository status
 
-This repository is **private and pre-release**.
+This repository is a **public, pre-release protocol draft**. Public visibility is not a standards release, license grant, or conformance result.
 
-The substantive protocol package currently lives on reviewed draft PR lineages rather than `main`.
+The following draft packages are now on `main`:
 
-- PR #1 contains the initial protocol review package.
-- PR #5 is the bounded traceability/validator repair stacked on PR #1 and has an exact-head independent ACCEPT for that repair.
-- A combined PR #5-on-#1 exact head has not yet been established and freshly reviewed.
+- PR #1 consolidated the foundation, including the PR #5 repair and PR #10 orientation work, at `fcff842063a8da127f2577c36c4c5316de9c0cce`.
+- PR #11 added [Context Envelope v0.1](spec/09-context-envelope-v0.1.md).
+- PR #12 added [Capability and Policy Contract v0.1](spec/10-capability-and-policy-v0.1.md).
+- Historical exact-head review verdicts apply to their named artifacts and scope, not automatically to later edits.
 - Issue #9 proposes the Agent Access Integrity Boundary concept and has independent peer dispositions of `ACCEPT WITH AMENDMENTS` / `AMEND`; principal acceptance is unrecorded.
 - No public protocol release, conformance certification, or implementation authorization is implied by these documents.
 
 See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for sequencing.
+
+To help, start with [CONTRIBUTING.md](CONTRIBUTING.md). Useful contributions include precise ambiguities, counterexamples, neutral test vectors, and small reviewable repairs. Do not post private deployment data or credentials.
 
 ## Documentation map
 
@@ -95,6 +98,8 @@ See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for
 | [spec/06-conformance.md](spec/06-conformance.md) | Conformance claims and fixtures |
 | [spec/07-errors.md](spec/07-errors.md) | Stable errors and precedence |
 | [spec/08-immutability-and-chain-of-custody-v0.2.md](spec/08-immutability-and-chain-of-custody-v0.2.md) | v0.2 custody-chain review candidate |
+| [spec/09-context-envelope-v0.1.md](spec/09-context-envelope-v0.1.md) | Context exchange contract candidate |
+| [spec/10-capability-and-policy-v0.1.md](spec/10-capability-and-policy-v0.1.md) | Capability and policy contract candidate |
 | [conformance/README.md](conformance/README.md) | Neutral fixture contract |
 
 ## Review model
@@ -107,4 +112,4 @@ Pull requests run the dependency-free review-package validator through `.github/
 
 ## Licensing
 
-No public license grant has been selected yet. Until a license is added, ordinary copyright rules apply. Do not redistribute or treat this private review repository as an open-standard release.
+No public license grant has been selected yet. The repository is public for inspection and discussion, but this visibility change does not select a license or establish an open-standard release. Licensing remains a separate maintainer decision.
