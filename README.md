@@ -105,6 +105,8 @@ A valid PASS must say what was evaluated. Defined criteria, evaluated criteria, 
 
 Pull requests run the dependency-free review-package validator through `.github/workflows/review-package.yml`. Passing repository-integrity CI validates the package; it does not establish protocol correctness or implementation conformance.
 
-## Licensing
+## License
 
-No public license grant has been selected yet. Until a license is added, ordinary copyright rules apply. Do not redistribute or treat this private review repository as an open-standard release.
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0). See
+[LICENSE](LICENSE). Contributions are accepted under the Developer Certificate
+of Origin. See [DCO.md](DCO.md).
