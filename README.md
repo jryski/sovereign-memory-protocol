@@ -111,11 +111,22 @@ The specification, conformance material and documentation in this repository
 are licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
 See [LICENSE](LICENSE).
 
-The executable tooling — `scripts/validate_repository.py` and
-`tests/test_validate_repository.py` — is licensed under the Apache License,
-Version 2.0. See [LICENSE-CODE](LICENSE-CODE). Each file carries an SPDX
-identifier. Creative Commons does not recommend its licenses for software, and
-a software license gives reusers the patent and warranty terms they expect.
+The executable tooling in this repository is licensed under the Apache
+License, Version 2.0. See [LICENSE-CODE](LICENSE-CODE). That scope is:
+
+- `scripts/validate_repository.py`
+- `tests/test_validate_repository.py`
+- `.github/workflows/review-package.yml`
+
+The two Python files carry an SPDX identifier. This list is the authoritative
+scope map: if executable tooling is added later, add it here and give it the
+same identifier, rather than assuming the list above is exhaustive by
+construction.
+
+Creative Commons does not recommend its licenses for software. Both licenses
+disclaim warranties, so that is not the distinction; Apache-2.0 adds an express
+patent grant and the software-specific terms reusers expect, which CC BY does
+not provide.
 
 Contributions are accepted under the Developer Certificate of Origin. See
 [DCO.md](DCO.md).
