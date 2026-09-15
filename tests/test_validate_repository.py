@@ -12,9 +12,9 @@ VALIDATOR = REPO_ROOT / "scripts" / "validate_repository.py"
 
 
 class ReviewPackageValidatorTests(unittest.TestCase):
-    def run_validator(self, root: pathlib.Path) -> subprocess.CompletedProcess[str]:
+    def run_validator(self, root: pathlib.Path, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [sys.executable, str(VALIDATOR), "--root", str(root), "--json"],
+            [sys.executable, str(VALIDATOR), "--root", str(root), "--json", *args],
             text=True,
             capture_output=True,
             check=False,
@@ -27,12 +27,95 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             entries.append(f"{digest}  {path.relative_to(root).as_posix()}")
         (root / "REVIEW-MANIFEST.sha256").write_text("\n".join(entries) + "\n")
 
+    def test_public_project_links_do_not_require_private_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            readme = root / "README.md"
+            readme.write_text("[Program](https://github.com/jryski/sovereign-memory-core)\n")
+            self.write_manifest(root, [readme])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(json.loads(result.stdout)["private_identifier_scan"], "not_performed")
+
+    def test_external_private_policy_scans_source_without_echoing_terms(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = pathlib.Path(tmp)
+            root = parent / "package"
+            root.mkdir()
+            source = root / "example.py"
+            source.write_text("# SYNTHETIC-PRIVATE-ROUTE\n")
+            policy = parent / "private.json"
+            policy.write_text(json.dumps(["synthetic-private-route"]))
+            self.write_manifest(root, [source])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["private_identifier_scan"], "performed")
+            self.assertIn({"code": "SANITATION_PRIVATE_IDENTIFIER", "path": "example.py"}, report["errors"])
+            self.assertNotIn("synthetic-private-route", result.stdout.lower())
+            self.assertNotIn(str(policy), result.stdout)
+
+    def test_invalid_or_missing_private_policy_fails_closed(self) -> None:
+        for payload in (None, "{", "[]", '[""]', '["  "]', '[3]', '{}'):
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory() as tmp:
+                parent = pathlib.Path(tmp)
+                root = parent / "package"
+                root.mkdir()
+                self.write_manifest(root, [])
+                policy = parent / "private.json"
+                if payload is not None:
+                    policy.write_text(payload)
+                result = self.run_validator(root, "--private-identifiers", str(policy))
+                self.assertEqual(result.returncode, 1)
+                report = json.loads(result.stdout)
+                self.assertEqual(report["private_identifier_scan"], "invalid")
+                self.assertIn({"code": "PRIVATE_POLICY_INVALID"}, report["errors"])
+
+    def test_private_policy_cannot_be_packaged(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            policy = root / "private.json"
+            policy.write_text('["synthetic-private-route"]')
+            self.write_manifest(root, [policy])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 1)
+            self.assertIn({"code": "PRIVATE_POLICY_INSIDE_PACKAGE"}, json.loads(result.stdout)["errors"])
+
+    def test_private_policy_uses_literals_not_regular_expressions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = pathlib.Path(tmp)
+            root = parent / "package"
+            root.mkdir()
+            source = root / "example.py"
+            source.write_text("# ordinary synthetic example\n")
+            policy = parent / "private.json"
+            policy.write_text('[".*"]')
+            self.write_manifest(root, [source])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(json.loads(result.stdout)["private_identifier_scan"], "performed")
+
+    def test_private_scan_does_not_silently_skip_non_utf8(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = pathlib.Path(tmp)
+            root = parent / "package"
+            root.mkdir()
+            source = root / "example.bin"
+            source.write_bytes(b"\xff")
+            policy = parent / "private.json"
+            policy.write_text('["synthetic-private-route"]')
+            self.write_manifest(root, [source])
+            result = self.run_validator(root, "--private-identifiers", str(policy))
+            self.assertEqual(result.returncode, 1)
+            self.assertIn({"code": "PRIVATE_SCAN_UNREADABLE", "path": "example.bin"}, json.loads(result.stdout)["errors"])
+
     def write_v02_package(
         self,
         root: pathlib.Path,
         *,
         positive_result: str = "pass `report_contract`",
         negative_result: str = "`TEST_FAILURE`",
+        extra_case_rows: str = "",
     ) -> None:
         spec = root / "spec" / "08-immutability-and-chain-of-custody-v0.2.md"
         spec.parent.mkdir()
@@ -62,6 +145,7 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             "# Cases\n\n| Case | Input | Expected primary result |\n|---|---|---|\n"
             f"| `V02-TEST-001-P` | good | {positive_result} |\n"
             f"| `V02-TEST-001-N` | bad | {negative_result} |\n"
+            + extra_case_rows
         )
         self.write_manifest(root, [cases, trace, dimensions, registry, spec])
 
@@ -301,6 +385,63 @@ class ReviewPackageValidatorTests(unittest.TestCase):
                 report["errors"],
             )
 
+    def test_positive_case_cannot_skip_pass_validation(self) -> None:
+        for result_text in ("unknown", "`TEST_FAILURE`", "PASS `report_contract`"):
+            with self.subTest(result=result_text), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                self.write_v02_package(root, positive_result=result_text)
+                result = self.run_validator(root)
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(
+                    {"code": "CASE_PASS_RESULT_MISSING", "detail": "V02-TEST-001-P"},
+                    json.loads(result.stdout)["errors"],
+                )
+
+    def test_negative_primary_must_lead_the_result(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, negative_result="unknown; secondary: `TEST_FAILURE`")
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(
+                {"code": "CASE_PRIMARY_RESULT_MISSING", "detail": "V02-TEST-001-N"},
+                json.loads(result.stdout)["errors"],
+            )
+
+    def test_positive_dimension_must_match_its_requirement_family(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, positive_result="pass `other_dimension`")
+            dimensions = root / "spec" / "05-verification.md"
+            dimensions.write_text(dimensions.read_text().replace(
+                "## Next", "| `other_dimension` | other |\n\n## Next"
+            ))
+            self.write_manifest(root, [p for p in root.rglob("*")
+                                      if p.is_file() and p.name != "REVIEW-MANIFEST.sha256"])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(
+                {"code": "CASE_PASS_DIMENSION_MISMATCH", "detail": "V02-TEST-001-P"},
+                json.loads(result.stdout)["errors"],
+            )
+
+    def test_planned_coverage_is_not_executed_conformance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root)
+            cases = root / "conformance" / "expectations" / "immutability-v0.2-cases.md"
+            cases.write_text("\n".join(line for line in cases.read_text().splitlines()
+                                      if "V02-TEST-001-N" not in line) + "\n")
+            self.write_manifest(root, [p for p in root.rglob("*")
+                                      if p.is_file() and p.name != "REVIEW-MANIFEST.sha256"])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["planned_case_ids"], 2)
+            self.assertEqual(report["documented_planned_case_ids"], 1)
+            self.assertEqual(report["undocumented_planned_case_ids"], ["V02-TEST-001-N"])
+            self.assertEqual(report["conformance_evaluation"], "not_performed")
+
     def test_status_value_cannot_masquerade_as_verification_dimension(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
@@ -336,6 +477,106 @@ class ReviewPackageValidatorTests(unittest.TestCase):
                 {"code": "TRACEABILITY_DIMENSION_UNKNOWN", "detail": "test_family:pass"},
                 report["errors"],
             )
+
+    def test_mapped_case_package_still_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root)
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "pass")
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["case_rows"], 2)
+
+    def test_unmapped_negative_case_cannot_bypass_primary_result_check(self) -> None:
+        for negative_result in ("unknown", "free prose with no backticked class"):
+            with self.subTest(negative_result=negative_result), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                self.write_v02_package(
+                    root,
+                    extra_case_rows=f"| `V02-TEST-999-N` | synthetic invalid case | {negative_result} |\n",
+                )
+                result = self.run_validator(root)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                report = json.loads(result.stdout)
+                self.assertEqual(report["case_rows"], 3)
+                self.assertIn(
+                    {"code": "CASE_PRIMARY_RESULT_MISSING", "detail": "V02-TEST-999-N"},
+                    report["errors"],
+                )
+                self.assertIn(
+                    {"code": "CASE_FIXTURE_UNMAPPED", "detail": "V02-TEST-999-N"},
+                    report["errors"],
+                )
+
+    def test_unmapped_handles_are_rejected_for_both_suffixes(self) -> None:
+        for extra, identifier in (
+            ("| `V02-TEST-999-N` | synthetic | `TEST_FAILURE` |\n", "V02-TEST-999-N"),
+            ("| `V02-TEST-999-P` | synthetic | pass `report_contract` |\n", "V02-TEST-999-P"),
+        ):
+            with self.subTest(identifier=identifier), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                self.write_v02_package(root, extra_case_rows=extra)
+                result = self.run_validator(root)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                report = json.loads(result.stdout)
+                self.assertIn(
+                    {"code": "CASE_FIXTURE_UNMAPPED", "detail": identifier},
+                    report["errors"],
+                )
+                self.assertNotIn(
+                    {"code": "CASE_PRIMARY_RESULT_MISSING", "detail": identifier},
+                    report["errors"],
+                )
+
+    def test_case_handle_without_polarity_suffix_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(
+                root,
+                extra_case_rows="| `V02-TEST-996` | synthetic | unknown |\n",
+            )
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {"code": "CASE_FIXTURE_SUFFIX_INVALID", "detail": "V02-TEST-996"},
+                report["errors"],
+            )
+            self.assertNotIn(
+                {"code": "CASE_FIXTURE_UNMAPPED", "detail": "V02-TEST-996"},
+                report["errors"],
+            )
+
+    def test_mapped_negative_still_matches_its_registered_primary_result(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, negative_result="`OTHER_FAILURE`")
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn(
+                {
+                    "code": "CASE_PRIMARY_RESULT_MISMATCH",
+                    "detail": "V02-TEST-001-N:TEST_FAILURE:OTHER_FAILURE",
+                },
+                json.loads(result.stdout)["errors"],
+            )
+
+    def test_undocumented_planned_handles_remain_metrics_not_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root)
+            cases = root / "conformance" / "expectations" / "immutability-v0.2-cases.md"
+            cases.write_text("\n".join(line for line in cases.read_text().splitlines()
+                                      if "V02-TEST-001-N" not in line) + "\n")
+            self.write_manifest(root, [p for p in root.rglob("*")
+                                      if p.is_file() and p.name != "REVIEW-MANIFEST.sha256"])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["undocumented_planned_case_ids"], ["V02-TEST-001-N"])
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 # Sovereign Memory Protocol Roadmap
 
 _Status: planning document; not normative protocol text_
-_Last updated: 2026-08-27_
+_Last updated: 2026-09-07_
 
 This roadmap describes sequencing for the protocol repository. It does not authorize implementation, deployment, production enrollment, publication, or a release.
 
@@ -19,20 +19,13 @@ SMP should let an independent verifier answer, with bounded claims:
 
 The protocol should accomplish this without requiring one storage engine, one memory schema, one model, or a migration of existing payloads into an SMP-native database.
 
-## Phase 0 — Establish the private protocol baseline
+## Phase 0: Consolidated draft foundation
 
-**Current.**
+**Integration completed.** PR #1 consolidated the foundation, PR #5 repair and PR #10 orientation work at `fcff842063a8da127f2577c36c4c5316de9c0cce`. PR #11 and PR #12 subsequently added the Context Envelope and Capability/Policy candidates.
 
-- Preserve PR #1 as the initial protocol package lineage.
-- Apply the accepted bounded PR #5 repair onto that lineage.
-- Freeze one new exact combined head.
-- Run repository validator and CI.
-- Obtain fresh exact-head independent review.
-- Merge only the reviewed artifact through the approved private workflow.
+The repository is now public. The merged draft is not a released standard, and merge history does not establish conformance. New edits still require their own exact-artifact review.
 
-**Exit:** one private draft baseline exists at an immutable reviewed coordinate.
-
-## Phase 1 — Fill the semantic gaps exposed by operation
+## Phase 1: Fill the semantic gaps exposed by operation
 
 Add bounded implementation-neutral drafts for:
 
@@ -62,7 +55,7 @@ Add bounded implementation-neutral drafts for:
 
 **Exit:** these semantics are reviewed as protocol concepts and backed by traceable fixtures.
 
-## Phase 2 — Agent Access Integrity Boundary
+## Phase 2: Agent Access Integrity Boundary
 
 Revise issue #9 into a protocol-quality design before normative promotion.
 
@@ -104,7 +97,7 @@ Named profiles may bundle dimensions; they must not replace dimensional reportin
 
 **Exit:** accepted design, threat model, state machine, evidence envelope, and conformance matrix. No production enrollment required.
 
-## Phase 3 — Neutral conformance and vectors
+## Phase 3: Neutral conformance and vectors
 
 - Stable requirement IDs.
 - Machine-readable fixture schemas.
@@ -116,7 +109,7 @@ Named profiles may bundle dimensions; they must not replace dimensional reportin
 
 **Exit:** protocol claims can be exercised without assumptions from one implementation family.
 
-## Phase 4 — Substrate profiles
+## Phase 4: Substrate profiles
 
 Substrate profiles define mechanisms needed to satisfy the portable protocol.
 
@@ -132,7 +125,7 @@ Canonical serialization and write-path enumeration belong in each profile.
 
 **Exit:** at least one reference implementation and one materially different substrate can produce comparable protocol claims without identical schemas.
 
-## Phase 5 — Portability, transfer, recovery, and provider exit
+## Phase 5: Portability, transfer, recovery, and provider exit
 
 - Golden export/transfer/restore vectors.
 - Bilateral custody transfer.
@@ -142,11 +135,11 @@ Canonical serialization and write-path enumeration belong in each profile.
 - Offline verification and provider-exit evidence.
 - Recovery claims explicitly separated from provenance/integrity claims.
 
-## Phase 6 — Publication readiness
+## Phase 6: Publication readiness
 
 Before any public protocol release:
 
-- private draft baseline accepted;
+- exact release candidate and its review authority recorded;
 - normative surface stabilized;
 - machine-readable vectors available;
 - full-history/public-boundary sanitation;
