@@ -115,6 +115,7 @@ class ReviewPackageValidatorTests(unittest.TestCase):
         *,
         positive_result: str = "pass `report_contract`",
         negative_result: str = "`TEST_FAILURE`",
+        extra_case_rows: str = "",
     ) -> None:
         spec = root / "spec" / "08-immutability-and-chain-of-custody-v0.2.md"
         spec.parent.mkdir()
@@ -144,6 +145,7 @@ class ReviewPackageValidatorTests(unittest.TestCase):
             "# Cases\n\n| Case | Input | Expected primary result |\n|---|---|---|\n"
             f"| `V02-TEST-001-P` | good | {positive_result} |\n"
             f"| `V02-TEST-001-N` | bad | {negative_result} |\n"
+            + extra_case_rows
         )
         self.write_manifest(root, [cases, trace, dimensions, registry, spec])
 
@@ -475,6 +477,106 @@ class ReviewPackageValidatorTests(unittest.TestCase):
                 {"code": "TRACEABILITY_DIMENSION_UNKNOWN", "detail": "test_family:pass"},
                 report["errors"],
             )
+
+    def test_mapped_case_package_still_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root)
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "pass")
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["case_rows"], 2)
+
+    def test_unmapped_negative_case_cannot_bypass_primary_result_check(self) -> None:
+        for negative_result in ("unknown", "free prose with no backticked class"):
+            with self.subTest(negative_result=negative_result), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                self.write_v02_package(
+                    root,
+                    extra_case_rows=f"| `V02-TEST-999-N` | synthetic invalid case | {negative_result} |\n",
+                )
+                result = self.run_validator(root)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                report = json.loads(result.stdout)
+                self.assertEqual(report["case_rows"], 3)
+                self.assertIn(
+                    {"code": "CASE_PRIMARY_RESULT_MISSING", "detail": "V02-TEST-999-N"},
+                    report["errors"],
+                )
+                self.assertIn(
+                    {"code": "CASE_FIXTURE_UNMAPPED", "detail": "V02-TEST-999-N"},
+                    report["errors"],
+                )
+
+    def test_unmapped_handles_are_rejected_for_both_suffixes(self) -> None:
+        for extra, identifier in (
+            ("| `V02-TEST-999-N` | synthetic | `TEST_FAILURE` |\n", "V02-TEST-999-N"),
+            ("| `V02-TEST-999-P` | synthetic | pass `report_contract` |\n", "V02-TEST-999-P"),
+        ):
+            with self.subTest(identifier=identifier), tempfile.TemporaryDirectory() as tmp:
+                root = pathlib.Path(tmp)
+                self.write_v02_package(root, extra_case_rows=extra)
+                result = self.run_validator(root)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                report = json.loads(result.stdout)
+                self.assertIn(
+                    {"code": "CASE_FIXTURE_UNMAPPED", "detail": identifier},
+                    report["errors"],
+                )
+                self.assertNotIn(
+                    {"code": "CASE_PRIMARY_RESULT_MISSING", "detail": identifier},
+                    report["errors"],
+                )
+
+    def test_case_handle_without_polarity_suffix_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(
+                root,
+                extra_case_rows="| `V02-TEST-996` | synthetic | unknown |\n",
+            )
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertIn(
+                {"code": "CASE_FIXTURE_SUFFIX_INVALID", "detail": "V02-TEST-996"},
+                report["errors"],
+            )
+            self.assertNotIn(
+                {"code": "CASE_FIXTURE_UNMAPPED", "detail": "V02-TEST-996"},
+                report["errors"],
+            )
+
+    def test_mapped_negative_still_matches_its_registered_primary_result(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root, negative_result="`OTHER_FAILURE`")
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn(
+                {
+                    "code": "CASE_PRIMARY_RESULT_MISMATCH",
+                    "detail": "V02-TEST-001-N:TEST_FAILURE:OTHER_FAILURE",
+                },
+                json.loads(result.stdout)["errors"],
+            )
+
+    def test_undocumented_planned_handles_remain_metrics_not_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.write_v02_package(root)
+            cases = root / "conformance" / "expectations" / "immutability-v0.2-cases.md"
+            cases.write_text("\n".join(line for line in cases.read_text().splitlines()
+                                      if "V02-TEST-001-N" not in line) + "\n")
+            self.write_manifest(root, [p for p in root.rglob("*")
+                                      if p.is_file() and p.name != "REVIEW-MANIFEST.sha256"])
+            result = self.run_validator(root)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["undocumented_planned_case_ids"], ["V02-TEST-001-N"])
 
 
 if __name__ == "__main__":

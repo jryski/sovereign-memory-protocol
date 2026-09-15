@@ -327,18 +327,23 @@ def validate_v02_traceability(root: pathlib.Path, errors: list[dict[str, str]]) 
     for code in sorted(case_codes - registry_codes - {"PASS"}):
         errors.append(error("CASE_CODE_UNREGISTERED", detail=code))
     for identifier, result in case_rows:
-        if identifier in trace_by_negative_fixture:
-            _requirement, expected_code = trace_by_negative_fixture[identifier]
+        if not identifier.endswith(("-P", "-N")):
+            errors.append(error("CASE_FIXTURE_SUFFIX_INVALID", detail=identifier))
+        elif identifier not in planned_case_ids:
+            errors.append(error("CASE_FIXTURE_UNMAPPED", detail=identifier))
+        if identifier.endswith("-N"):
             primary_match = re.match(r"`([A-Z][A-Z0-9_]+)`", result)
             if primary_match is None:
                 errors.append(error("CASE_PRIMARY_RESULT_MISSING", detail=identifier))
-            elif primary_match.group(1) != expected_code:
-                errors.append(
-                    error(
-                        "CASE_PRIMARY_RESULT_MISMATCH",
-                        detail=f"{identifier}:{expected_code}:{primary_match.group(1)}",
+            elif identifier in trace_by_negative_fixture:
+                _requirement, expected_code = trace_by_negative_fixture[identifier]
+                if primary_match.group(1) != expected_code:
+                    errors.append(
+                        error(
+                            "CASE_PRIMARY_RESULT_MISMATCH",
+                            detail=f"{identifier}:{expected_code}:{primary_match.group(1)}",
+                        )
                     )
-                )
         if identifier.endswith("-P"):
             if not result.startswith("pass "):
                 errors.append(error("CASE_PASS_RESULT_MISSING", detail=identifier))

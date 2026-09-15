@@ -24,4 +24,15 @@ The v0.1 immutability matrix is historical review material. The additive v0.2 ca
 
 Documented positive cases must state `pass` followed by the registered dimension for the corresponding requirement family. Documented negative cases must begin with their primary registered result; a secondary result cannot stand in for a missing primary.
 
+Result grammar is checked for every catalog row on the strength of the handle's own polarity suffix, never on whether the trace ledger happens to name that handle. Ledger membership only selects the additional comparison against the registered primary result or requirement-family dimension.
+
+Catalog handles are admitted under a closed extension policy, so adding a case to the catalog is not a way to introduce an unreviewed expectation:
+
+| Rule | Effect |
+| --- | --- |
+| Every catalog handle ends in `-P` or `-N`. | A handle without a polarity suffix is rejected. It has no defined result grammar. |
+| Every catalog handle is named by the v0.2 trace ledger. | A catalog row for an unmapped handle is rejected. Extend the ledger first, then document the case. |
+
+This rule runs in one direction only. A planned handle named by the ledger with no catalog row stays a reported `undocumented_planned_case_ids` metric and is not an error, because planned-but-undocumented coverage is tracked deliberately rather than suppressed.
+
 These metrics cover the v0.2 custody ledger only. They do not measure the Context Envelope or Capability/Policy candidates, prove the prose scenarios are complete, or establish any implementation's behavior. Future executable conformance receipts must name exact inputs, evaluated requirements, outcomes, unsupported areas and verifier/profile versions.

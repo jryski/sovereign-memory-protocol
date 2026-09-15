@@ -14,6 +14,13 @@ ledger. Additional findings follow the explicit `secondary:` marker.
 Positive results begin with `pass` followed immediately by a backticked registered
 dimension matching the requirement-family mapping in the traceability ledger.
 An absent, malformed or mismatched result is not a passing case definition.
+
+Every handle in this catalog ends in -P or -N and is named by the traceability
+ledger. A handle with no polarity suffix, or one this catalog introduces without
+a ledger row, is rejected rather than accepted on trust. Result grammar is
+enforced from the suffix alone, so an unrecognised handle cannot skip the check.
+The reverse case is deliberate and stays allowed: a ledger handle with no row
+here is reported as undocumented planned coverage, not as an error.
 These are catalog consistency rules, not evidence that a case has been executed.
 
 ## 1. Recording boundary and write surfaces
