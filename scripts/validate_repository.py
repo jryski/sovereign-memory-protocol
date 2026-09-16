@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Jesse Ryski
 """Validate an exact SMP protocol review package.
 
 The validator is dependency-free, deterministic, read-only, and emits a stable

@@ -105,6 +105,28 @@ A valid PASS must say what was evaluated. Defined criteria, evaluated criteria, 
 
 Pull requests run the dependency-free review-package validator through `.github/workflows/review-package.yml`. Passing repository-integrity CI validates the package; it does not establish protocol correctness or implementation conformance.
 
-## Licensing
+## License
 
-No public license grant has been selected yet. Until a license is added, ordinary copyright rules apply. Do not redistribute or treat this private review repository as an open-standard release.
+The specification, conformance material and documentation in this repository
+are licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+See [LICENSE](LICENSE).
+
+The executable tooling in this repository is licensed under the Apache
+License, Version 2.0. See [LICENSE-CODE](LICENSE-CODE). That scope is:
+
+- `scripts/validate_repository.py`
+- `tests/test_validate_repository.py`
+- `.github/workflows/review-package.yml`
+
+The two Python files carry an SPDX identifier. This list is the authoritative
+scope map: if executable tooling is added later, add it here and give it the
+same identifier, rather than assuming the list above is exhaustive by
+construction.
+
+Creative Commons does not recommend its licenses for software. Both licenses
+disclaim warranties, so that is not the distinction; Apache-2.0 adds an express
+patent grant and the software-specific terms reusers expect, which CC BY does
+not provide.
+
+Contributions are accepted under the Developer Certificate of Origin. See
+[DCO.md](DCO.md).
