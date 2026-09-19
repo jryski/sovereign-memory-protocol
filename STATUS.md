@@ -1,7 +1,7 @@
 # Protocol Status
 
-_Last updated: 2026-08-27_
-_Overall status: private pre-release protocol program; baseline integration and new profile design in progress_
+_Last updated: 2026-09-19_
+_Overall status: public pre-release protocol draft; consolidated draft package on main; no protocol release_
 
 ## Current state
 
@@ -26,7 +26,7 @@ _Overall status: private pre-release protocol program; baseline integration and 
 | Agent Access Integrity Boundary | **Peer-reviewed proposal; principal acceptance unrecorded** | Issue #9; independent dispositions `ACCEPT WITH AMENDMENTS` and `AMEND`; not normative or promoted |
 | External anchoring profiles | Informative research | No mandatory witness/anchor mechanism selected |
 | Review-package CI | Draft / active on PRs | Manifest, sanitation, registry, traceability, and package-integrity checks; not protocol conformance |
-| Public release | Blocked | Baseline, vectors, sanitation, license, publication, and exact promotion remain pending |
+| Public release | **Not established / repository public** | Repository is public on main with recorded licenses (CC BY 4.0 for specification, conformance and documentation; Apache-2.0 for tooling); normative promotion, vectors and exact release approval remain separate gates |
 
 ## Important current claim limits
 

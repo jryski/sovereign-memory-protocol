@@ -64,9 +64,9 @@ A repository, deployment, store, trust domain, and visibility class are not inte
 
 ## Repository status
 
-This repository is **private and pre-release**.
+This repository is a **public, pre-release protocol draft**. Public visibility does not establish a standards release, certification, or conformance result.
 
-The substantive protocol package currently lives on reviewed draft PR lineages rather than `main`.
+The consolidated draft package is on `main`, including the foundation package and the two shared-contract candidates. Historical exact-head review verdicts apply to the named artifacts and scope, and do not transfer automatically to later edits.
 
 - PR #1 contains the initial protocol review package.
 - PR #5 is the bounded traceability/validator repair stacked on PR #1 and has an exact-head independent ACCEPT for that repair.
@@ -95,6 +95,8 @@ See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for
 | [spec/06-conformance.md](spec/06-conformance.md) | Conformance claims and fixtures |
 | [spec/07-errors.md](spec/07-errors.md) | Stable errors and precedence |
 | [spec/08-immutability-and-chain-of-custody-v0.2.md](spec/08-immutability-and-chain-of-custody-v0.2.md) | v0.2 custody-chain review candidate |
+| [spec/09-context-envelope-v0.1.md](spec/09-context-envelope-v0.1.md) | Context exchange contract candidate |
+| [spec/10-capability-and-policy-v0.1.md](spec/10-capability-and-policy-v0.1.md) | Capability and policy contract candidate |
 | [conformance/README.md](conformance/README.md) | Neutral fixture contract |
 
 ## Review model
