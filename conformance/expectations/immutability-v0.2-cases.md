@@ -7,9 +7,21 @@ _Related traceability: `immutability-v0.2-traceability.md`_
 
 Every case must produce a structured result containing the exact input commitment, protocol/profile and verifier versions, trust-configuration identifier, applicable resource ceilings, primary and secondary findings, unavailable surfaces, and per-dimension state. Aggregate pass counts are insufficient.
 
-For negative cases that exercise more than one invariant, the first backticked
-error class is the authoritative primary result and must match the traceability
+For negative cases that exercise more than one invariant, the result must begin
+with the backticked authoritative primary error class and match the traceability
 ledger. Additional findings follow the explicit `secondary:` marker.
+
+Positive results begin with `pass` followed immediately by a backticked registered
+dimension matching the requirement-family mapping in the traceability ledger.
+An absent, malformed or mismatched result is not a passing case definition.
+
+Every handle in this catalog ends in -P or -N and is named by the traceability
+ledger. A handle with no polarity suffix, or one this catalog introduces without
+a ledger row, is rejected rather than accepted on trust. Result grammar is
+enforced from the suffix alone, so an unrecognised handle cannot skip the check.
+The reverse case is deliberate and stays allowed: a ledger handle with no row
+here is reported as undocumented planned coverage, not as an error.
+These are catalog consistency rules, not evidence that a case has been executed.
 
 ## 1. Recording boundary and write surfaces
 
