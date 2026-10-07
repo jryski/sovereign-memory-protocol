@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright 2026 Jesse Ryski
+# Copyright 2026 The Sovereign AI OS Authors
 
 import hashlib
 import json
