@@ -7,7 +7,7 @@ This repository publishes a protocol draft and its review-package tooling. Secur
 Use this repository's private vulnerability reporting form:
 <https://github.com/jryski/sovereign-memory-protocol/security/advisories/new>
 
-If the form is unavailable, email **jryski@gmail.com** instead.
+The form reaches the Primary Users who maintain this repository. If the form is unavailable, ask a maintainer for another private route. Do not publish a personal address in this file.
 
 Do not put exploit details, credentials, tokens, private hostnames or real
 personal, household, business or customer records in a public issue, pull

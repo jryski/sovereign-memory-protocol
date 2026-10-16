@@ -34,7 +34,7 @@ class ReviewPackageValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = pathlib.Path(tmp)
             readme = root / "README.md"
-            readme.write_text("[Program](https://github.com/jryski/sovereign-memory-core)\n")
+            readme.write_text("[Program](https://github.com/example-org/public-protocol)\n")
             self.write_manifest(root, [readme])
             result = self.run_validator(root)
             self.assertEqual(result.returncode, 0, result.stdout)

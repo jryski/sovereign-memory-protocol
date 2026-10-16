@@ -93,7 +93,7 @@ A short map for people and AI assistants arriving here first.
 | Cleanup | Nothing is created except Python caches; delete the disposable checkout. |
 | Evidence | [Review-package CI](.github/workflows/review-package.yml) runs the validator and its tests on every pull request and on `main`, and uploads a deterministic validation receipt. |
 | Contribute | [CONTRIBUTING.md](CONTRIBUTING.md): bounded ambiguities, synthetic counterexamples, neutral vectors; DCO sign-off ([DCO.md](DCO.md)). |
-| Security | [SECURITY.md](SECURITY.md): this repository's private reporting form, with an email fallback. |
+| Security | [SECURITY.md](SECURITY.md): private reporting form for the Primary Users. |
 | License | CC BY 4.0 for specification, conformance material and documentation; Apache-2.0 for the listed tooling ([License](#license)). |
 
 ## Documentation map
