@@ -128,7 +128,7 @@ This is a **forward evidence boundary**, not certification of pre-T0 correctness
 
 See [AGENT-ACCESS-INTEGRITY-BOUNDARY.md](AGENT-ACCESS-INTEGRITY-BOUNDARY.md).
 
-## Agent Access Integrity Boundary — current design direction
+## Agent Access Integrity Boundary: current design direction
 
 Independent review converges on these requirements:
 
@@ -147,24 +147,24 @@ The design remains proposed until these concepts are reconciled into a reviewed 
 
 ## Repository map
 
-- `README.md` — high-level orientation.
-- `STATUS.md` — current maturity and gates.
-- `ROADMAP.md` — sequencing.
-- `PRINCIPLES.md` — durable design constraints.
-- `GLOSSARY.md` — terminology.
-- `spec/` — protocol sections and review candidates.
-- `conformance/` — fixture/expectation/profile material.
-- `notes/` — informative review history and open questions.
-- `docs/` — high-level informative architecture/use-case documentation.
+- `README.md`: high-level orientation.
+- `STATUS.md`: current maturity and gates.
+- `ROADMAP.md`: sequencing.
+- `PRINCIPLES.md`: durable design constraints.
+- `GLOSSARY.md`: terminology.
+- `spec/`: protocol sections and review candidates.
+- `conformance/`: fixture/expectation/profile material.
+- `notes/`: informative review history and open questions.
+- `docs/`: high-level informative architecture/use-case documentation.
 
 ## Current major work
 
-1. Integrate PR #5 onto PR #1 and freeze one combined exact baseline.
+1. Maintain the merged foundation and shared-contract candidates; the PR #1/#5/#10 consolidation is complete.
 2. Add evaluability, self-description, claim-scope, and human-approval semantics.
 3. Refine issue #9 into the Agent Access Integrity Boundary design/threat/conformance matrix.
 4. Add portable machine-readable fixtures and a materially different substrate runner.
 5. Keep substrate mechanics in profiles/reference implementations.
-6. Prepare publication/licensing only after the private protocol surface stabilizes.
+6. Keep public-draft visibility separate from licensing, protocol release and implementation conformance.
 
 See [../ROADMAP.md](../ROADMAP.md).
 
