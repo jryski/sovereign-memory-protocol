@@ -64,17 +64,37 @@ A repository, deployment, store, trust domain, and visibility class are not inte
 
 ## Repository status
 
-This repository is **private and pre-release**.
+This repository is a **public, pre-release protocol draft** on `main`. Public visibility does not establish a standards release, certification or conformance result. The licenses are recorded and in force (see [License](#license)).
 
-The substantive protocol package currently lives on reviewed draft PR lineages rather than `main`.
+The following draft packages are merged on `main`:
 
-- PR #1 contains the initial protocol review package.
-- PR #5 is the bounded traceability/validator repair stacked on PR #1 and has an exact-head independent ACCEPT for that repair.
-- A combined PR #5-on-#1 exact head has not yet been established and freshly reviewed.
+- PR #1 consolidated the foundation, including the PR #5 repair and the PR #10 orientation work, at `fcff842063a8da127f2577c36c4c5316de9c0cce`.
+- PR #11 added [Context Envelope v0.1](spec/09-context-envelope-v0.1.md).
+- PR #12 added [Capability and Policy Contract v0.1](spec/10-capability-and-policy-v0.1.md).
+- Historical exact-head review verdicts apply to their named artifacts and scope, not automatically to later edits.
 - Issue #9 proposes the Agent Access Integrity Boundary concept and has independent peer dispositions of `ACCEPT WITH AMENDMENTS` / `AMEND`; principal acceptance is unrecorded.
-- No public protocol release, conformance certification, or implementation authorization is implied by these documents.
+- No protocol release, conformance certification or implementation authorization is implied by these documents.
 
-See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for sequencing.
+See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for sequencing. To help, start with [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Orientation: check the review package
+
+A short map for people and AI assistants arriving here first.
+
+| Question | Answer |
+| --- | --- |
+| What is this? | Implementation-neutral rules for provenance, custody, authority, lifecycle and portability of memory records ([spec overview](spec/00-overview.md), [principles](PRINCIPLES.md)). |
+| Where does it fit? | The protocol foundation of the [Sovereign AI OS program map](https://github.com/WireSpeedComputing/sovereign-ai-os). Implementations and consumers live in their own repositories and are listed there; this repository names no implementation as normative. |
+| Supported today | A draft review package and its integrity checks. There is no executable conformance runner for implementations. |
+| Prerequisites | Git and Python 3.11 or later. No database, provider, credential or third-party Python package. |
+| Exact commands | From a clean disposable checkout: `python scripts/validate_repository.py --root . --json`, then `python -m unittest discover -s tests -v`. |
+| Expected results | Allowed: the validator prints `"status": "pass"` with an empty `errors` list, requirement, traceability and case-row counts, and `"conformance_evaluation": "not_performed"`; the unit tests pass. Denied: the unit tests show the validator rejecting a broken relative link, a manifest hash mismatch, a configured private identifier, a mismatched or unmapped case result and a promoted status claim on a needs-revision document. |
+| What a pass means | **Package validation, not runtime conformance.** A pass shows that the files, manifest, links, traceability rows and documented case rows are consistent. It does not execute the case catalog against any implementation, prove protocol correctness or certify a deployment. Planned case identifiers, documented case rows and executed conformance outcomes are different evidence. |
+| Cleanup | Nothing is created except Python caches; delete the disposable checkout. |
+| Evidence | [Review-package CI](.github/workflows/review-package.yml) runs the validator and its tests on every pull request and on `main`, and uploads a deterministic validation receipt. |
+| Contribute | [CONTRIBUTING.md](CONTRIBUTING.md): bounded ambiguities, synthetic counterexamples, neutral vectors; DCO sign-off ([DCO.md](DCO.md)). |
+| Security | [SECURITY.md](SECURITY.md): this repository's private reporting form, with an email fallback. |
+| License | CC BY 4.0 for specification, conformance material and documentation; Apache-2.0 for the listed tooling ([License](#license)). |
 
 ## Documentation map
 
@@ -95,6 +115,8 @@ See [STATUS.md](STATUS.md) for current maturity and [ROADMAP.md](ROADMAP.md) for
 | [spec/06-conformance.md](spec/06-conformance.md) | Conformance claims and fixtures |
 | [spec/07-errors.md](spec/07-errors.md) | Stable errors and precedence |
 | [spec/08-immutability-and-chain-of-custody-v0.2.md](spec/08-immutability-and-chain-of-custody-v0.2.md) | v0.2 custody-chain review candidate |
+| [spec/09-context-envelope-v0.1.md](spec/09-context-envelope-v0.1.md) | Context exchange contract candidate |
+| [spec/10-capability-and-policy-v0.1.md](spec/10-capability-and-policy-v0.1.md) | Capability and policy contract candidate |
 | [conformance/README.md](conformance/README.md) | Neutral fixture contract |
 
 ## Review model
