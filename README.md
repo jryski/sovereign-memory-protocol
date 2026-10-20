@@ -8,6 +8,25 @@ SMP began with AI memory, but the protocol boundary is broader than any one memo
 
 Memory engines still decide what to remember, retrieve, rank, summarize, and answer. Existing enterprise systems still own their native records. SMP defines the evidence and authority semantics around those systems.
 
+
+## Orientation for people and AI assistants
+
+Each row links the source that supports it. Gaps are stated rather than filled in.
+
+| Question | Where to look |
+| --- | --- |
+| Purpose | [Why this exists](#why-this-exists), [What the current draft specifies](#what-the-current-draft-specifies) |
+| Relationships | [program map](https://github.com/WireSpeedComputing/sovereign-ai-os) ([component routes](https://github.com/WireSpeedComputing/sovereign-ai-os/blob/main/ROUTES.md)); [PROGRAM-ROLE.md](PROGRAM-ROLE.md) |
+| Prerequisites | Git and Python 3.11 or later (standard library only). |
+| Exact commands | Clone this repository, then from its root run `python3 -m unittest tests/test_validate_repository.py -v`, `python3 scripts/validate_repository.py --root .` |
+| Allowed / denied results | Allowed: the tests report `OK` and the validator prints `pass: <n> files, 0 errors`. Denied: the unit tests include negative controls the validator must reject. |
+| Cleanup | Delete the disposable checkout. `--json` output is written only where you redirect it. |
+| Evidence | The [review-package workflow](.github/workflows/review-package.yml) and [REVIEW-MANIFEST.sha256](REVIEW-MANIFEST.sha256); [STATUS.md](STATUS.md). |
+| Limits | Public draft, not a ratified standard: [Repository status](#repository-status), [ROADMAP.md](ROADMAP.md). |
+| License | [License](#license): [LICENSE](LICENSE) (specification) and [LICENSE-CODE](LICENSE-CODE) (code). |
+| Contribute | [Review model](#review-model), [DCO.md](DCO.md) |
+| Security | This repository's private reporting form: **Security** tab, then **Report a vulnerability**; details in [SECURITY.md](SECURITY.md). |
+
 ## Why this exists
 
 An export can move bytes without preserving what those bytes meant, who asserted them, what evidence supported them, whether they were accepted, what they superseded, or whether a restored copy is stale.
